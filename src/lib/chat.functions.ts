@@ -218,6 +218,7 @@ export const sendChatMessage = createServerFn({ method: "POST" })
         content: turn.message,
         response_type: turn.type,
         recommended_mentor_ids: turn.recommendations.map((rec) => rec.mentorId),
+        recommendations: turn.recommendations,
       })
       .select()
       .single();
