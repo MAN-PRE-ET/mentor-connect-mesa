@@ -36,12 +36,14 @@ export const Route = createFileRoute("/_app/chat/$conversationId")({
       { title: "Chat — Mentor Connect" },
       {
         name: "description",
-        content: "Describe your career problem and get matched with Mesa School of Business mentors.",
+        content:
+          "Describe your career problem and get matched with Mesa School of Business mentors.",
       },
       { property: "og:title", content: "Chat — Mentor Connect" },
       {
         property: "og:description",
-        content: "Describe your career problem and get matched with Mesa School of Business mentors.",
+        content:
+          "Describe your career problem and get matched with Mesa School of Business mentors.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

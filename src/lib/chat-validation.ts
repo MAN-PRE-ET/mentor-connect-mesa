@@ -28,7 +28,11 @@ function normalize(value: string): string {
 }
 
 /** True when the mentor's DB row truly contains `value` in `field`. */
-export function mentorFieldContains(mentor: Record<string, unknown>, field: string, value: string): boolean {
+export function mentorFieldContains(
+  mentor: Record<string, unknown>,
+  field: string,
+  value: string,
+): boolean {
   if (!Object.prototype.hasOwnProperty.call(mentor, field)) return false;
   const needle = normalize(value);
   if (!needle) return false;
@@ -52,7 +56,10 @@ export function validEvidence(mentor: Record<string, unknown>, evidence: Evidenc
  * - at most 3 recommendations;
  * - a `recommend` turn with nothing left becomes `no_match`.
  */
-export function validateChatTurn(raw: RawTurn | null | undefined, mentorsById: Map<string, Record<string, unknown>>): ChatTurn {
+export function validateChatTurn(
+  raw: RawTurn | null | undefined,
+  mentorsById: Map<string, Record<string, unknown>>,
+): ChatTurn {
   const allowedTypes = new Set(["clarify", "recommend", "no_match", "support", "off_topic"]);
   const type = typeof raw?.type === "string" && allowedTypes.has(raw.type) ? raw.type : "no_match";
   const message = typeof raw?.message === "string" && raw.message.trim() ? raw.message : "";

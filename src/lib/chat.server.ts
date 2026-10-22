@@ -138,7 +138,12 @@ export async function callMentorMatch(opts: {
     return await once(opts.mentors, opts.history, opts.studentName, undefined);
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error)) {
-      return await once(opts.mentors, opts.history, opts.studentName, "Return ONLY valid JSON matching the required response shape.");
+      return await once(
+        opts.mentors,
+        opts.history,
+        opts.studentName,
+        "Return ONLY valid JSON matching the required response shape.",
+      );
     }
     throw error;
   }

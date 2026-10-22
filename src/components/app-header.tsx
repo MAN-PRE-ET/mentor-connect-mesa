@@ -21,8 +21,14 @@ export function TypingIndicator({ label = "Thinking" }: { label?: string }) {
     <div className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
       <span className="flex gap-1">
         <span className="typing-dot size-1.5 rounded-full bg-muted-foreground" />
-        <span className="typing-dot size-1.5 rounded-full bg-muted-foreground" style={{ animationDelay: "0.15s" }} />
-        <span className="typing-dot size-1.5 rounded-full bg-muted-foreground" style={{ animationDelay: "0.3s" }} />
+        <span
+          className="typing-dot size-1.5 rounded-full bg-muted-foreground"
+          style={{ animationDelay: "0.15s" }}
+        />
+        <span
+          className="typing-dot size-1.5 rounded-full bg-muted-foreground"
+          style={{ animationDelay: "0.3s" }}
+        />
       </span>
       {label}…
     </div>
@@ -41,11 +47,19 @@ export function useOpenLatestChat() {
     try {
       const conversations = await listConversations({ data: { studentId: student.id } });
       if (conversations.length > 0) {
-        navigate({ to: "/chat/$conversationId", params: { conversationId: conversations[0]!.id }, search: { q: undefined } });
+        navigate({
+          to: "/chat/$conversationId",
+          params: { conversationId: conversations[0]!.id },
+          search: { q: undefined },
+        });
         return;
       }
       const created = await createConversation({ data: { studentId: student.id } });
-      navigate({ to: "/chat/$conversationId", params: { conversationId: created.id }, search: { q: undefined } });
+      navigate({
+        to: "/chat/$conversationId",
+        params: { conversationId: created.id },
+        search: { q: undefined },
+      });
     } catch {
       toast.error("Couldn't open your chats. Please try again.");
     }
@@ -73,11 +87,22 @@ export function AppHeader() {
           <LogoMark />
         </button>
         <nav className="flex items-center gap-1 sm:gap-2">
-          <Button variant="ghost" size="sm" className="rounded-lg" onClick={() => void openLatestChat()}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-lg"
+            onClick={() => void openLatestChat()}
+          >
             Chat
           </Button>
           {NAV_LINKS.map((link) => (
-            <Button key={link.to} variant="ghost" size="sm" className="hidden rounded-lg sm:inline-flex" onClick={() => navigate({ to: link.to })}>
+            <Button
+              key={link.to}
+              variant="ghost"
+              size="sm"
+              className="hidden rounded-lg sm:inline-flex"
+              onClick={() => navigate({ to: link.to })}
+            >
               {link.label}
             </Button>
           ))}
