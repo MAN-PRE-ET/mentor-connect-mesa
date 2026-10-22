@@ -15,6 +15,13 @@
       "when": 1792702335960,
       "tag": "0001_add_message_recommendations",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792702804505,
+      "tag": "0002_recreate_mentors_matching_seed",
+      "breakpoints": true
     }
   ]
 }

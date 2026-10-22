@@ -51,63 +51,63 @@ export type Database = {
       }
       mentors: {
         Row: {
-          activities_participated: string | null
-          ai_experience: string | null
-          ai_native: string | null
+          activities_participated: number | null
+          ai_experience: boolean | null
+          ai_native: boolean | null
           ai_sub_domain: string | null
-          ai_tools: string[] | null
-          analytics_tools: string[] | null
-          built_ai_product: string | null
+          ai_tools: string[]
+          analytics_tools: string[]
+          built_ai_product: boolean | null
           city: string | null
           company: string | null
-          data_completeness: string | null
-          domains: string[] | null
+          data_completeness: string
+          domains: string[]
           id: string
           master_sector: string | null
-          name: string | null
+          name: string
           quality_of_mentorship: string | null
-          roles: string[] | null
-          sectors: string[] | null
+          roles: string[]
+          sectors: string[]
           seniority: string | null
         }
         Insert: {
-          activities_participated?: string | null
-          ai_experience?: string | null
-          ai_native?: string | null
+          activities_participated?: number | null
+          ai_experience?: boolean | null
+          ai_native?: boolean | null
           ai_sub_domain?: string | null
-          ai_tools?: string[] | null
-          analytics_tools?: string[] | null
-          built_ai_product?: string | null
+          ai_tools?: string[]
+          analytics_tools?: string[]
+          built_ai_product?: boolean | null
           city?: string | null
           company?: string | null
-          data_completeness?: string | null
-          domains?: string[] | null
+          data_completeness?: string
+          domains?: string[]
           id: string
           master_sector?: string | null
-          name?: string | null
+          name: string
           quality_of_mentorship?: string | null
-          roles?: string[] | null
-          sectors?: string[] | null
+          roles?: string[]
+          sectors?: string[]
           seniority?: string | null
         }
         Update: {
-          activities_participated?: string | null
-          ai_experience?: string | null
-          ai_native?: string | null
+          activities_participated?: number | null
+          ai_experience?: boolean | null
+          ai_native?: boolean | null
           ai_sub_domain?: string | null
-          ai_tools?: string[] | null
-          analytics_tools?: string[] | null
-          built_ai_product?: string | null
+          ai_tools?: string[]
+          analytics_tools?: string[]
+          built_ai_product?: boolean | null
           city?: string | null
           company?: string | null
-          data_completeness?: string | null
-          domains?: string[] | null
+          data_completeness?: string
+          domains?: string[]
           id?: string
           master_sector?: string | null
-          name?: string | null
+          name?: string
           quality_of_mentorship?: string | null
-          roles?: string[] | null
-          sectors?: string[] | null
+          roles?: string[]
+          sectors?: string[]
           seniority?: string | null
         }
         Relationships: []
