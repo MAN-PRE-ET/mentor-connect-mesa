@@ -29,19 +29,21 @@ import type { ChatMessage } from "@/lib/types";
 
 export const Route = createFileRoute("/_app/chat/$conversationId")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : undefined,
+    q: typeof search["q"] === "string" ? search["q"] : undefined,
   }),
   head: () => ({
     meta: [
       { title: "Chat — Mentor Connect" },
       {
         name: "description",
-        content: "Describe your career problem and get matched with Mesa School of Business mentors.",
+        content:
+          "Describe your career problem and get matched with Mesa School of Business mentors.",
       },
       { property: "og:title", content: "Chat — Mentor Connect" },
       {
         property: "og:description",
-        content: "Describe your career problem and get matched with Mesa School of Business mentors.",
+        content:
+          "Describe your career problem and get matched with Mesa School of Business mentors.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,6 +57,8 @@ const EXAMPLES = [
   "Should I specialize in AI product management?",
   "I've been passed over for a promotion twice. What am I missing?",
 ];
+
+type ConversationData = Awaited<ReturnType<typeof getConversation>>;
 
 function ChatPage() {
   const { conversationId } = Route.useParams();
@@ -75,7 +79,7 @@ function ChatPage() {
   });
 
   const conversation = conversationQuery.data?.conversation;
-  const messages = conversationQuery.data?.messages ?? [];
+  const messages = useMemo(() => conversationQuery.data?.messages ?? [], [conversationQuery.data]);
 
   const mentorIds = useMemo(
     () => [...new Set(messages.flatMap((m) => m.recommendedMentorIds))],
@@ -95,7 +99,7 @@ function ChatPage() {
     router.navigate({
       to: "/chat/$conversationId",
       params: { conversationId },
-      search: {},
+      search: { q: undefined },
       replace: true,
     });
   };
@@ -106,7 +110,7 @@ function ChatPage() {
       lastSentRef.current = content;
       setSendError(null);
       await queryClient.cancelQueries({ queryKey: conversationKey });
-      const previous = queryClient.getQueryData(conversationKey);
+      const previous = queryClient.getQueryData<ConversationData>(conversationKey);
       const optimistic: ChatMessage = {
         id: `temp-${Date.now()}`,
         role: "user",
@@ -116,14 +120,14 @@ function ChatPage() {
         recommendations: [],
         createdAt: new Date().toISOString(),
       };
-      queryClient.setQueryData(conversationKey, (old: typeof previous) =>
+      queryClient.setQueryData<ConversationData>(conversationKey, (old) =>
         old ? { ...old, messages: [...old.messages, optimistic] } : old,
       );
       return { previous };
     },
     onSuccess: (result, _content, context) => {
       if (result.ok) {
-        queryClient.setQueryData(conversationKey, (old: typeof context.previous) =>
+        queryClient.setQueryData<ConversationData>(conversationKey, (old) =>
           old
             ? {
                 ...old,
@@ -201,6 +205,16 @@ function ChatPage() {
           <ConversationContent className="mx-auto w-full max-w-3xl px-4 py-6">
             {conversationQuery.isPending ? (
               <MessageSkeleton />
+            ) : conversationQuery.isError ? (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                <p className="font-medium">This chat couldn't be loaded</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  It may have been deleted, or the link is out of date.
+                </p>
+                <Button variant="outline" className="rounded-xl" onClick={() => router.navigate({ to: "/" })}>
+                  Start over
+                </Button>
+              </div>
             ) : isEmpty ? (
               <div className="flex flex-col items-center gap-4 py-16 text-center">
                 <h2 className="text-2xl font-semibold tracking-tight">What are you stuck on?</h2>
@@ -253,16 +267,18 @@ function ChatPage() {
                     </MessageContent>
                   </Message>
                 ))}
-                {send.isPending ? (
-                  <div className="animate-message-in">
-                    <TypingIndicator label="Matching mentors" />
-                  </div>
-                ) : null}
-                {sendError && !send.isPending ? (
-                  <ErrorState error={sendError} onRetry={() => send.mutate(lastSentRef.current)} />
-                ) : null}
               </div>
             )}
+            {send.isPending ? (
+              <div className="animate-message-in mx-auto w-full max-w-3xl px-4">
+                <TypingIndicator label="Matching mentors" />
+              </div>
+            ) : null}
+            {sendError && !send.isPending ? (
+              <div className="mx-auto w-full max-w-3xl px-4">
+                <ErrorState error={sendError} onRetry={() => send.mutate(lastSentRef.current)} />
+              </div>
+            ) : null}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>

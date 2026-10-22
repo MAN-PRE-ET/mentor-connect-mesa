@@ -48,7 +48,8 @@ function toMessageDto(row: DbMentor): ChatMessage {
     role: row["role"] === "assistant" ? "assistant" : "user",
     content: String(row["content"] ?? ""),
     responseType: (row["response_type"] as ChatResponseType | null) ?? null,
-    recommendedMentorIds: (row["recommended_mentor_ids"] as string[] | null) ?? recommendedMentorIds,
+    recommendedMentorIds:
+      (row["recommended_mentor_ids"] as string[] | null) ?? recommendedMentorIds,
     recommendations,
     createdAt: String(row["created_at"]),
   };
@@ -117,18 +118,25 @@ export const deleteConversation = createServerFn({ method: "POST" })
 
 export const getConversation = createServerFn({ method: "GET" })
   .inputValidator((input: { conversationId: string }) => input)
-  .handler(async ({ data }): Promise<{ conversation: ConversationSummary; messages: ChatMessage[] }> => {
-    const db = createServerDb();
-    const [conversationResult, messagesResult] = await Promise.all([
-      db.from("conversations").select("*").eq("id", data.conversationId).single(),
-      db.from("messages").select("*").eq("conversation_id", data.conversationId).order("created_at", { ascending: true }),
-    ]);
-    if (conversationResult.error || !conversationResult.data) throw new Error("conversation_not_found");
-    return {
-      conversation: toConversationDto(conversationResult.data as DbMentor),
-      messages: (messagesResult.data ?? []).map(toMessageDto),
-    };
-  });
+  .handler(
+    async ({ data }): Promise<{ conversation: ConversationSummary; messages: ChatMessage[] }> => {
+      const db = createServerDb();
+      const [conversationResult, messagesResult] = await Promise.all([
+        db.from("conversations").select("*").eq("id", data.conversationId).single(),
+        db
+          .from("messages")
+          .select("*")
+          .eq("conversation_id", data.conversationId)
+          .order("created_at", { ascending: true }),
+      ]);
+      if (conversationResult.error || !conversationResult.data)
+        throw new Error("conversation_not_found");
+      return {
+        conversation: toConversationDto(conversationResult.data as DbMentor),
+        messages: (messagesResult.data ?? []).map(toMessageDto),
+      };
+    },
+  );
 
 export const getMentorsByIds = createServerFn({ method: "POST" })
   .inputValidator((input: { mentorIds: string[] }) => input)
@@ -165,13 +173,22 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     // 2. Save the user's message; auto-title the thread from the first message.
     const isFirstMessage = priorMessages.length === 0;
-    const title = isFirstMessage ? (content.length > 60 ? `${content.slice(0, 60)}…` : content) : conversation.title;
+    const title = isFirstMessage
+      ? content.length > 60
+        ? `${content.slice(0, 60)}…`
+        : content
+      : conversation.title;
     const { data: userRow, error: userError } = await db
       .from("messages")
       .insert({ conversation_id: data.conversationId, role: "user", content })
       .select()
       .single();
     if (userError || !userRow) return { ok: false, error: "send_failed" };
+
+    // Auto-title the thread from the student's first message, immediately.
+    if (isFirstMessage) {
+      await db.from("conversations").update({ title }).eq("id", data.conversationId);
+    }
 
     // 3. Load the real mentor roster from the database.
     const { data: mentorRows, error: mentorError } = await db.from("mentors").select("*");
@@ -206,7 +223,9 @@ export const sendChatMessage = createServerFn({ method: "POST" })
     const turn = validateChatTurn(raw, mentorsById);
 
     if (turn.type === "no_match") {
-      await db.from("unmatched_queries").insert({ conversation_id: data.conversationId, query: content });
+      await db
+        .from("unmatched_queries")
+        .insert({ conversation_id: data.conversationId, query: content });
     }
 
     // 6. Save the assistant's reply.
@@ -241,6 +260,10 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       mentors: turn.recommendations
         .map((rec) => mentorsById.get(rec.mentorId))
         .filter((m): m is MentorRow => Boolean(m)),
-      conversation: { id: conversation.id, title, category: turn.category || conversation.category },
+      conversation: {
+        id: conversation.id,
+        title,
+        category: turn.category || conversation.category,
+      },
     };
   });

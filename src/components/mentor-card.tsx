@@ -46,11 +46,14 @@ export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps)
               {match === "strong" ? "Strong match" : "Partial match"}
             </Badge>
             {limited ? (
-              <Badge className="border-transparent bg-caution/20 text-caution-foreground">Limited profile</Badge>
+              <Badge className="border-transparent bg-caution/20 text-caution-foreground">
+                Limited profile
+              </Badge>
             ) : null}
           </div>
           <p className="mt-0.5 truncate text-sm text-muted-foreground">
-            {[mentor.company, mentor.city].filter(Boolean).join(" · ") || "Profile details unavailable"}
+            {[mentor.company, mentor.city].filter(Boolean).join(" · ") ||
+              "Profile details unavailable"}
           </p>
         </div>
       </div>
@@ -72,7 +75,9 @@ export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps)
 
       {evidence.length > 0 && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Why this mentor</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Why this mentor
+          </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {evidence.map((entry, index) => (
               <Badge
@@ -88,7 +93,13 @@ export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps)
 
       {caveat ? <p className="text-xs italic text-muted-foreground">Note: {caveat}</p> : null}
 
-      <Button size="sm" className="w-fit" onClick={() => toast("Call booking is coming soon — mentors can't be booked in this prototype yet.")}>
+      <Button
+        size="sm"
+        className="w-fit"
+        onClick={() =>
+          toast("Call booking is coming soon — mentors can't be booked in this prototype yet.")
+        }
+      >
         Book a call
       </Button>
     </Card>

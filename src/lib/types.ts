@@ -75,7 +75,10 @@ export type SendChatSuccess = {
   conversation: { id: string; title: string | null; category: string | null };
 };
 
-export type SendChatFailure = { ok: false; error: "mentors_unavailable" | "ai_unavailable" | "send_failed" };
+export type SendChatFailure = {
+  ok: false;
+  error: "mentors_unavailable" | "ai_unavailable" | "send_failed";
+};
 
 export type SendChatResult = SendChatSuccess | SendChatFailure;
 

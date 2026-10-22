@@ -10,8 +10,9 @@ export function SupportNote() {
         <span className="text-sm font-semibold">If you need someone to talk to</span>
       </div>
       <p className="text-sm text-accent-foreground/90">
-        Tele-MANAS (India): <span className="font-semibold">14416</span> — free, confidential support, available any
-        time. There's no rush here; we can pick the career chat back up whenever you're ready.
+        Tele-MANAS (India): <span className="font-semibold">14416</span> — free, confidential
+        support, available any time. There's no rush here; we can pick the career chat back up
+        whenever you're ready.
       </p>
     </Card>
   );

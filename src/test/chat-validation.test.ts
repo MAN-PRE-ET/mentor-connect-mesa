@@ -86,7 +86,14 @@ describe("validateChatTurn", () => {
         type: "recommend",
         message: "x",
         category: "",
-        recommendations: [{ mentor_id: "ghost", match: "strong", evidence: [{ field: "name", value: "Ghost" }], caveat: null }],
+        recommendations: [
+          {
+            mentor_id: "ghost",
+            match: "strong",
+            evidence: [{ field: "name", value: "Ghost" }],
+            caveat: null,
+          },
+        ],
       },
       roster,
     );
@@ -100,7 +107,14 @@ describe("validateChatTurn", () => {
         type: "recommend",
         message: "x",
         category: "",
-        recommendations: [{ mentor_id: "m1", match: "strong", evidence: [{ field: "company", value: "Fake Co" }], caveat: null }],
+        recommendations: [
+          {
+            mentor_id: "m1",
+            match: "strong",
+            evidence: [{ field: "company", value: "Fake Co" }],
+            caveat: null,
+          },
+        ],
       },
       roster,
     );
@@ -122,7 +136,10 @@ describe("validateChatTurn", () => {
       evidence: [{ field: "name", value: "Asha Menon" }],
       caveat: null,
     }));
-    const turn = validateChatTurn({ type: "recommend", message: "x", category: "", recommendations: recs }, roster5);
+    const turn = validateChatTurn(
+      { type: "recommend", message: "x", category: "", recommendations: recs },
+      roster5,
+    );
     expect(turn.recommendations).toHaveLength(3);
   });
 
@@ -132,7 +149,14 @@ describe("validateChatTurn", () => {
         type: "support",
         message: "Take care.",
         category: "",
-        recommendations: [{ mentor_id: "m1", match: "strong", evidence: [{ field: "name", value: "Asha Menon" }], caveat: null }],
+        recommendations: [
+          {
+            mentor_id: "m1",
+            match: "strong",
+            evidence: [{ field: "name", value: "Asha Menon" }],
+            caveat: null,
+          },
+        ],
       },
       roster,
     );
@@ -141,7 +165,10 @@ describe("validateChatTurn", () => {
   });
 
   it("falls back to no_match on an unknown type", () => {
-    const turn = validateChatTurn({ type: "explode", message: "x", category: "", recommendations: [] } as never, roster);
+    const turn = validateChatTurn(
+      { type: "explode", message: "x", category: "", recommendations: [] } as never,
+      roster,
+    );
     expect(turn.type).toBe("no_match");
     expect(turn.recommendations).toHaveLength(0);
   });

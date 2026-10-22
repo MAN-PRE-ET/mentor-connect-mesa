@@ -29,7 +29,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Mentor Connect — Get unstuck in your career" },
       {
         property: "og:description",
-        content: "Describe your career problem and get matched with real Mesa School of Business mentors.",
+        content:
+          "Describe your career problem and get matched with real Mesa School of Business mentors.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -119,11 +120,15 @@ function Landing() {
             Get unstuck in your career
           </h1>
           <p className="mt-3 text-lg text-muted-foreground text-balance">
-            Describe what you're stuck on and we'll match you with mentors who have actually been there.
+            Describe what you're stuck on and we'll match you with mentors who have actually been
+            there.
           </p>
         </div>
 
-        <div className="animate-message-in w-full rounded-2xl border bg-card p-2 shadow-lift" style={{ animationDelay: "0.08s" }}>
+        <div
+          className="animate-message-in w-full rounded-2xl border bg-card p-2 shadow-lift"
+          style={{ animationDelay: "0.08s" }}
+        >
           <Textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
@@ -149,7 +154,10 @@ function Landing() {
           </div>
         </div>
 
-        <div className="animate-message-in flex flex-wrap justify-center gap-2" style={{ animationDelay: "0.16s" }}>
+        <div
+          className="animate-message-in flex flex-wrap justify-center gap-2"
+          style={{ animationDelay: "0.16s" }}
+        >
           {EXAMPLES.map((example) => (
             <button
               key={example}

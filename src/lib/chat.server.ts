@@ -1,7 +1,8 @@
 import { NoObjectGeneratedError, Output, streamText, type ModelMessage } from "ai";
 import { z } from "zod";
 import { createResponsesProvider } from "./ai-gateway.server";
-import type { ChatTurn, MentorRow } from "./types";
+import type { MentorRow } from "./types";
+import type { RawTurn } from "./chat-validation";
 
 /**
  * Grounded mentor matching. Loads real mentor rows, sends a compact version
@@ -36,7 +37,7 @@ function compactMentor(mentor: MentorRow): Record<string, string | string[]> {
     analytics_tools: mentor.analyticsTools,
   };
   for (const [key, value] of Object.entries(scalar)) {
-    if (value && value.trim()) out[key] = value;
+    if (value && String(value).trim()) out[key] = String(value);
   }
   for (const [key, value] of Object.entries(arrays)) {
     if (value && value.length > 0) out[key] = value;
@@ -98,7 +99,7 @@ async function once(
   history: { role: "user" | "assistant"; content: string }[],
   studentName: string,
   nudge: string | undefined,
-): Promise<ChatTurn> {
+): Promise<RawTurn> {
   const { provider } = createResponsesProvider();
   const systemPrompt = MENTOR_CHAT_SYSTEM_PROMPT.replace(
     "{STUDENT_NAME}",
@@ -124,7 +125,7 @@ async function once(
     },
   });
 
-  return (await result.output) as ChatTurn;
+  return await result.output;
 }
 
 /** Calls the model; on a JSON parse failure retries once, then throws. */
@@ -132,12 +133,17 @@ export async function callMentorMatch(opts: {
   mentors: MentorRow[];
   history: { role: "user" | "assistant"; content: string }[];
   studentName: string;
-}): Promise<ChatTurn> {
+}): Promise<RawTurn> {
   try {
     return await once(opts.mentors, opts.history, opts.studentName, undefined);
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error)) {
-      return await once(opts.mentors, opts.history, opts.studentName, "Return ONLY valid JSON matching the required response shape.");
+      return await once(
+        opts.mentors,
+        opts.history,
+        opts.studentName,
+        "Return ONLY valid JSON matching the required response shape.",
+      );
     }
     throw error;
   }
