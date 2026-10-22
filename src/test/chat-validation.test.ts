@@ -20,7 +20,7 @@ function mentor(overrides: Partial<MentorRow> = {}): MentorRow {
     aiTools: ["LangChain"],
     analyticsTools: ["Amplitude"],
     qualityOfMentorship: "high",
-    activitiesParticipated: "Bootcamps",
+    activitiesParticipated: 1,
     dataCompleteness: "high",
     ...overrides,
   };
@@ -40,6 +40,11 @@ describe("mentorFieldContains", () => {
     expect(mentorFieldContains(mentor(), "sectors", "Fintech")).toBe(false);
     expect(mentorFieldContains(mentor(), "company", "Google")).toBe(false);
     expect(mentorFieldContains(mentor(), "salary", "1cr")).toBe(false);
+  });
+
+  it("accepts snake_case field names against camelCase rows", () => {
+    expect(mentorFieldContains(mentor(), "master_sector", "Edtech")).toBe(true);
+    expect(mentorFieldContains(mentor(), "data_completeness", "high")).toBe(true);
   });
 
   it("rejects empty fields treated as unknown", () => {

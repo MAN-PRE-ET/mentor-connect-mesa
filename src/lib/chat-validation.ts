@@ -27,21 +27,29 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
+/** Accepts "master_sector" as well as "masterSector" for the same field. */
+function fieldVariants(field: string): string[] {
+  const camel = field.replace(/_([a-z0-9])/g, (_m, c: string) => c.toUpperCase());
+  return field === camel ? [field] : [field, camel];
+}
+
 /** True when the mentor's DB row truly contains `value` in `field`. */
 export function mentorFieldContains(
   mentor: Record<string, unknown>,
   field: string,
   value: string,
 ): boolean {
-  if (!Object.prototype.hasOwnProperty.call(mentor, field)) return false;
   const needle = normalize(value);
   if (!needle) return false;
-  const rowValue = mentor[field];
-  if (Array.isArray(rowValue)) {
-    return rowValue.some((entry) => typeof entry === "string" && normalize(entry) === needle);
-  }
-  if (typeof rowValue === "string") return normalize(rowValue) === needle;
-  return false;
+  return fieldVariants(field).some((variant) => {
+    if (!Object.prototype.hasOwnProperty.call(mentor, variant)) return false;
+    const rowValue = mentor[variant];
+    if (Array.isArray(rowValue)) {
+      return rowValue.some((entry) => typeof entry === "string" && normalize(entry) === needle);
+    }
+    if (typeof rowValue === "string") return normalize(rowValue) === needle;
+    return false;
+  });
 }
 
 export function validEvidence(mentor: Record<string, unknown>, evidence: Evidence[]): Evidence[] {
