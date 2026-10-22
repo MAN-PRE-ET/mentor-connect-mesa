@@ -118,6 +118,7 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          recommendations: Json
           recommended_mentor_ids: string[] | null
           response_type: string | null
           role: string
@@ -127,6 +128,7 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          recommendations?: Json
           recommended_mentor_ids?: string[] | null
           response_type?: string | null
           role: string
@@ -136,6 +138,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          recommendations?: Json
           recommended_mentor_ids?: string[] | null
           response_type?: string | null
           role?: string

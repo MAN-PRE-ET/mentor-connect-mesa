@@ -8,6 +8,13 @@
       "when": 1792702122467,
       "tag": "0000_create_mentor_connect_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792702335960,
+      "tag": "0001_add_message_recommendations",
+      "breakpoints": true
     }
   ]
 }
