@@ -1,15 +1,17 @@
-import type { ReactNode } from "react";
+import { Outlet } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
 });
 
-function AppLayout({ children }: { children: ReactNode }) {
+function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader />
-      <div className="flex min-h-0 flex-1">{children}</div>
+      <main className="flex min-h-0 flex-1 flex-col">
+        <Outlet />
+      </main>
     </div>
   );
 }
