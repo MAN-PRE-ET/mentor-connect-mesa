@@ -28,7 +28,7 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
     },
     onSuccess: (conversation) => {
       queryClient.invalidateQueries({ queryKey: ["conversations", student?.id] });
-      navigate({ to: "/chat/$conversationId", params: { conversationId: conversation.id } });
+      navigate({ to: "/chat/$conversationId", params: { conversationId: conversation.id }, search: { q: undefined } });
     },
     onError: () => toast.error("Couldn't start a new chat. Please try again."),
   });
@@ -79,11 +79,13 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate({ to: "/chat/$conversationId", params: { conversationId: conversation.id } })}
+                  onClick={() =>
+                    navigate({ to: "/chat/$conversationId", params: { conversationId: conversation.id }, search: { q: undefined } })
+                  }
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      navigate({ to: "/chat/$conversationId", params: { conversationId: conversation.id } });
+                      navigate({ to: "/chat/$conversationId", params: { conversationId: conversation.id }, search: { q: undefined } });
                     }
                   }}
                   className={cn(

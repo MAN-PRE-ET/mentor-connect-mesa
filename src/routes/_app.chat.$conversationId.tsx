@@ -29,7 +29,7 @@ import type { ChatMessage } from "@/lib/types";
 
 export const Route = createFileRoute("/_app/chat/$conversationId")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : undefined,
+    q: typeof search["q"] === "string" ? search["q"] : undefined,
   }),
   head: () => ({
     meta: [
