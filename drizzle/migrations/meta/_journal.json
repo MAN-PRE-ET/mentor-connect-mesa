@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792702122467,
+      "tag": "0000_create_mentor_connect_tables",
+      "breakpoints": true
+    }
+  ]
 }

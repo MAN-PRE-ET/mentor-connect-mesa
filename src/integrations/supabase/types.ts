@@ -14,7 +14,189 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          student_id: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          student_id: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          student_id?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentors: {
+        Row: {
+          activities_participated: string | null
+          ai_experience: string | null
+          ai_native: string | null
+          ai_sub_domain: string | null
+          ai_tools: string[] | null
+          analytics_tools: string[] | null
+          built_ai_product: string | null
+          city: string | null
+          company: string | null
+          data_completeness: string | null
+          domains: string[] | null
+          id: string
+          master_sector: string | null
+          name: string | null
+          quality_of_mentorship: string | null
+          roles: string[] | null
+          sectors: string[] | null
+          seniority: string | null
+        }
+        Insert: {
+          activities_participated?: string | null
+          ai_experience?: string | null
+          ai_native?: string | null
+          ai_sub_domain?: string | null
+          ai_tools?: string[] | null
+          analytics_tools?: string[] | null
+          built_ai_product?: string | null
+          city?: string | null
+          company?: string | null
+          data_completeness?: string | null
+          domains?: string[] | null
+          id: string
+          master_sector?: string | null
+          name?: string | null
+          quality_of_mentorship?: string | null
+          roles?: string[] | null
+          sectors?: string[] | null
+          seniority?: string | null
+        }
+        Update: {
+          activities_participated?: string | null
+          ai_experience?: string | null
+          ai_native?: string | null
+          ai_sub_domain?: string | null
+          ai_tools?: string[] | null
+          analytics_tools?: string[] | null
+          built_ai_product?: string | null
+          city?: string | null
+          company?: string | null
+          data_completeness?: string | null
+          domains?: string[] | null
+          id?: string
+          master_sector?: string | null
+          name?: string | null
+          quality_of_mentorship?: string | null
+          roles?: string[] | null
+          sectors?: string[] | null
+          seniority?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          recommended_mentor_ids: string[] | null
+          response_type: string | null
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          recommended_mentor_ids?: string[] | null
+          response_type?: string | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          recommended_mentor_ids?: string[] | null
+          response_type?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string
+          first_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      unmatched_queries: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          query: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          query: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          query?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unmatched_queries_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
