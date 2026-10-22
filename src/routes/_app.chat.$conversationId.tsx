@@ -267,17 +267,18 @@ function ChatPage() {
                     </MessageContent>
                   </Message>
                 ))}
-                {send.isPending ? (
-                  <div className="animate-message-in">
-                    <TypingIndicator label="Matching mentors" />
-                  </div>
-                ) : null}
-                {sendError && !send.isPending ? (
-                  <ErrorState error={sendError} onRetry={() => send.mutate(lastSentRef.current)} />
-                ) : null}
               </div>
             )}
-            {send.isPending && isEmpty !== true ? null : null}
+            {send.isPending ? (
+              <div className="animate-message-in mx-auto w-full max-w-3xl px-4">
+                <TypingIndicator label="Matching mentors" />
+              </div>
+            ) : null}
+            {sendError && !send.isPending && !isEmpty ? (
+              <div className="mx-auto w-full max-w-3xl px-4">
+                <ErrorState error={sendError} onRetry={() => send.mutate(lastSentRef.current)} />
+              </div>
+            ) : null}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
