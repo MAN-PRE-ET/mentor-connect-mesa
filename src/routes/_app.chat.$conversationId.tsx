@@ -79,7 +79,7 @@ function ChatPage() {
   });
 
   const conversation = conversationQuery.data?.conversation;
-  const messages = conversationQuery.data?.messages ?? [];
+  const messages = useMemo(() => conversationQuery.data?.messages ?? [], [conversationQuery.data]);
 
   const mentorIds = useMemo(
     () => [...new Set(messages.flatMap((m) => m.recommendedMentorIds))],
@@ -205,6 +205,16 @@ function ChatPage() {
           <ConversationContent className="mx-auto w-full max-w-3xl px-4 py-6">
             {conversationQuery.isPending ? (
               <MessageSkeleton />
+            ) : conversationQuery.isError ? (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                <p className="font-medium">This chat couldn't be loaded</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  It may have been deleted, or the link is out of date.
+                </p>
+                <Button variant="outline" className="rounded-xl" onClick={() => router.navigate({ to: "/" })}>
+                  Start over
+                </Button>
+              </div>
             ) : isEmpty ? (
               <div className="flex flex-col items-center gap-4 py-16 text-center">
                 <h2 className="text-2xl font-semibold tracking-tight">What are you stuck on?</h2>
