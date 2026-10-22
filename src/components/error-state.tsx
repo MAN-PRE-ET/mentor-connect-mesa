@@ -12,7 +12,7 @@ export function ErrorState({ error, onRetry }: { error: string; onRetry: () => v
   return (
     <Card className="animate-message-in flex-col items-start gap-2 rounded-2xl border-destructive/30 p-4">
       <p className="text-sm font-medium">That didn't work</p>
-      <p className="text-sm text-muted-foreground">{MESSAGES[error] ?? MESSAGES.send_failed}</p>
+      <p className="text-sm text-muted-foreground">{MESSAGES[error] ?? MESSAGES["send_failed"]}</p>
       <Button size="sm" variant="outline" onClick={onRetry}>
         Try again
       </Button>
