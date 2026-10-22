@@ -15,6 +15,13 @@ import type {
 
 type DbMentor = Record<string, unknown>;
 
+/** The seed stores yes/no fields as booleans; expose them as "yes"/"no" strings. */
+function boolToYesNo(value: unknown): string | null {
+  if (value === true) return "yes";
+  if (value === false) return "no";
+  return null;
+}
+
 function toMentorDto(row: DbMentor): MentorRow {
   return {
     id: String(row["id"]),
@@ -26,14 +33,14 @@ function toMentorDto(row: DbMentor): MentorRow {
     sectors: (row["sectors"] as string[] | null) ?? null,
     roles: (row["roles"] as string[] | null) ?? null,
     seniority: (row["seniority"] as string | null) ?? null,
-    aiNative: (row["ai_native"] as string | null) ?? null,
-    builtAiProduct: (row["built_ai_product"] as string | null) ?? null,
-    aiExperience: (row["ai_experience"] as string | null) ?? null,
+    aiNative: boolToYesNo(row["ai_native"]),
+    builtAiProduct: boolToYesNo(row["built_ai_product"]),
+    aiExperience: boolToYesNo(row["ai_experience"]),
     aiSubDomain: (row["ai_sub_domain"] as string | null) ?? null,
     aiTools: (row["ai_tools"] as string[] | null) ?? null,
     analyticsTools: (row["analytics_tools"] as string[] | null) ?? null,
     qualityOfMentorship: (row["quality_of_mentorship"] as string | null) ?? null,
-    activitiesParticipated: (row["activities_participated"] as string | null) ?? null,
+    activitiesParticipated: (row["activities_participated"] as number | null) ?? null,
     dataCompleteness: (row["data_completeness"] as string | null) ?? null,
   };
 }

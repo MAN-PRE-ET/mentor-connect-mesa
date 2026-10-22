@@ -15,7 +15,7 @@ const MODEL_ID = "openai/gpt-6-astra";
 /** Compact serialization: only fields present in the data; null/empty omitted. */
 function compactMentor(mentor: MentorRow): Record<string, string | string[]> {
   const out: Record<string, string | string[]> = {};
-  const scalar: Record<string, string | null> = {
+  const scalar: Record<string, string | number | null> = {
     name: mentor.name,
     city: mentor.city,
     company: mentor.company,

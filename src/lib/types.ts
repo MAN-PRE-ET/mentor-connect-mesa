@@ -20,7 +20,7 @@ export type MentorRow = {
   aiTools: string[] | null;
   analyticsTools: string[] | null;
   qualityOfMentorship: string | null;
-  activitiesParticipated: string | null;
+  activitiesParticipated: number | null;
   dataCompleteness: string | null;
 };
 
