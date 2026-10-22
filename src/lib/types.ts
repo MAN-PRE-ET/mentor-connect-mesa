@@ -50,6 +50,7 @@ export type ChatMessage = {
   content: string;
   responseType: ChatResponseType | null;
   recommendedMentorIds: string[];
+  recommendations: Recommendation[];
   createdAt: string;
 };
 

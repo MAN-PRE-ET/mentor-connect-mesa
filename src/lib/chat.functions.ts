@@ -39,12 +39,17 @@ function toMentorDto(row: DbMentor): MentorRow {
 }
 
 function toMessageDto(row: DbMentor): ChatMessage {
+  const recommendations = Array.isArray(row["recommendations"])
+    ? (row["recommendations"] as ChatMessage["recommendations"])
+    : [];
+  const recommendedMentorIds = recommendations.map((rec) => rec.mentorId);
   return {
     id: String(row["id"]),
     role: row["role"] === "assistant" ? "assistant" : "user",
     content: String(row["content"] ?? ""),
     responseType: (row["response_type"] as ChatResponseType | null) ?? null,
-    recommendedMentorIds: (row["recommended_mentor_ids"] as string[] | null) ?? [],
+    recommendedMentorIds: (row["recommended_mentor_ids"] as string[] | null) ?? recommendedMentorIds,
+    recommendations,
     createdAt: String(row["created_at"]),
   };
 }
