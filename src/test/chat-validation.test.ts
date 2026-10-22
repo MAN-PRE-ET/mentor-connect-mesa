@@ -20,7 +20,7 @@ function mentor(overrides: Partial<MentorRow> = {}): MentorRow {
     aiTools: ["LangChain"],
     analyticsTools: ["Amplitude"],
     qualityOfMentorship: "high",
-    activitiesParticipated: "Bootcamps",
+    activitiesParticipated: 1,
     dataCompleteness: "high",
     ...overrides,
   };
