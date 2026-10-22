@@ -274,7 +274,7 @@ function ChatPage() {
                 <TypingIndicator label="Matching mentors" />
               </div>
             ) : null}
-            {sendError && !send.isPending && !isEmpty ? (
+            {sendError && !send.isPending ? (
               <div className="mx-auto w-full max-w-3xl px-4">
                 <ErrorState error={sendError} onRetry={() => send.mutate(lastSentRef.current)} />
               </div>
