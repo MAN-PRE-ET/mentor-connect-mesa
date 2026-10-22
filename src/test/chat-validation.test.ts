@@ -42,6 +42,11 @@ describe("mentorFieldContains", () => {
     expect(mentorFieldContains(mentor(), "salary", "1cr")).toBe(false);
   });
 
+  it("accepts snake_case field names against camelCase rows", () => {
+    expect(mentorFieldContains(mentor(), "master_sector", "Edtech")).toBe(true);
+    expect(mentorFieldContains(mentor(), "data_completeness", "high")).toBe(true);
+  });
+
   it("rejects empty fields treated as unknown", () => {
     const m = mentor({ aiSubDomain: null });
     expect(mentorFieldContains(m, "aiSubDomain", "anything")).toBe(false);
