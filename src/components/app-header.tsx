@@ -41,11 +41,11 @@ export function useOpenLatestChat() {
     try {
       const conversations = await listConversations({ data: { studentId: student.id } });
       if (conversations.length > 0) {
-        navigate({ to: "/chat/$conversationId", params: { conversationId: conversations[0]!.id } });
+        navigate({ to: "/chat/$conversationId", params: { conversationId: conversations[0]!.id }, search: { q: undefined } });
         return;
       }
       const created = await createConversation({ data: { studentId: student.id } });
-      navigate({ to: "/chat/$conversationId", params: { conversationId: created.id } });
+      navigate({ to: "/chat/$conversationId", params: { conversationId: created.id }, search: { q: undefined } });
     } catch {
       toast.error("Couldn't open your chats. Please try again.");
     }
