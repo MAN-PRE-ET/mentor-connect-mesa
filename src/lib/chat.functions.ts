@@ -185,6 +185,11 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       .single();
     if (userError || !userRow) return { ok: false, error: "send_failed" };
 
+    // Auto-title the thread from the student's first message, immediately.
+    if (isFirstMessage) {
+      await db.from("conversations").update({ title }).eq("id", data.conversationId);
+    }
+
     // 3. Load the real mentor roster from the database.
     const { data: mentorRows, error: mentorError } = await db.from("mentors").select("*");
     if (mentorError) return { ok: false, error: "mentors_unavailable" };

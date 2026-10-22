@@ -277,6 +277,7 @@ function ChatPage() {
                 ) : null}
               </div>
             )}
+            {send.isPending && isEmpty !== true ? null : null}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
