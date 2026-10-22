@@ -56,6 +56,8 @@ const EXAMPLES = [
   "I've been passed over for a promotion twice. What am I missing?",
 ];
 
+type ConversationData = Awaited<ReturnType<typeof getConversation>>;
+
 function ChatPage() {
   const { conversationId } = Route.useParams();
   const search = Route.useSearch();
@@ -95,7 +97,7 @@ function ChatPage() {
     router.navigate({
       to: "/chat/$conversationId",
       params: { conversationId },
-      search: {},
+      search: { q: undefined },
       replace: true,
     });
   };
@@ -106,7 +108,7 @@ function ChatPage() {
       lastSentRef.current = content;
       setSendError(null);
       await queryClient.cancelQueries({ queryKey: conversationKey });
-      const previous = queryClient.getQueryData(conversationKey);
+      const previous = queryClient.getQueryData<ConversationData>(conversationKey);
       const optimistic: ChatMessage = {
         id: `temp-${Date.now()}`,
         role: "user",
@@ -116,14 +118,14 @@ function ChatPage() {
         recommendations: [],
         createdAt: new Date().toISOString(),
       };
-      queryClient.setQueryData(conversationKey, (old: typeof previous) =>
+      queryClient.setQueryData<ConversationData>(conversationKey, (old) =>
         old ? { ...old, messages: [...old.messages, optimistic] } : old,
       );
       return { previous };
     },
     onSuccess: (result, _content, context) => {
       if (result.ok) {
-        queryClient.setQueryData(conversationKey, (old: typeof context.previous) =>
+        queryClient.setQueryData<ConversationData>(conversationKey, (old) =>
           old
             ? {
                 ...old,
