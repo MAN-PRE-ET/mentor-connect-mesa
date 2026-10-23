@@ -61,7 +61,7 @@ export function validEvidence(mentor: Record<string, unknown>, evidence: Evidenc
  * - unknown mentor ids are dropped;
  * - only evidence the DB row truly contains is kept;
  * - recommendations left without any valid evidence are dropped;
- * - at most 3 recommendations;
+ * - at most 3 recommendations, ordered by verified evidence count;
  * - a `recommend` turn with nothing left becomes `no_match`.
  */
 export function validateChatTurn(
@@ -89,6 +89,8 @@ export function validateChatTurn(
       };
     })
     .filter((rec): rec is NonNullable<typeof rec> => rec !== null)
+    // Mentors with more verified evidence are the better matches: show them first.
+    .sort((a, b) => b.evidence.length - a.evidence.length)
     .slice(0, 3);
 
   let finalType = type;
@@ -100,4 +102,124 @@ export function validateChatTurn(
   }
 
   return { type: finalType as ChatTurn["type"], message, category, recommendations };
+}
+
+/* ------------------------------------------------------------------ */
+/* Message-level grounding helpers. These extend claim validation by   */
+/* policing the reply TEXT; they never relax the checks above.         */
+/* ------------------------------------------------------------------ */
+
+export const UNKNOWN_MENTOR_REPLY = "I can't find a mentor with that ID in our list.";
+export const UNKNOWN_DETAIL_REPLY = "That detail isn't in our mentor data, so I can't say.";
+export const INJECTION_REFUSAL_REPLY =
+  "I can't change how I work, but I'm happy to help you find a mentor. What are you working toward?";
+export const NO_MENTOR_FALLBACK_REPLY =
+  "I couldn't verify that against our mentor list, so I'd rather not name anyone. Could you tell me a bit more about what you're working toward?";
+const SUPPORT_FALLBACK_REPLY =
+  "I'm really glad you shared that with me. There's no rush here — we can pick the career chat back up whenever you're ready.";
+const NO_MATCH_LABEL = "General guidance (not from our mentors):";
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function splitSentences(text: string): string[] {
+  const parts = text.trim().match(/[^.!?…]+[.!?…]+["')\]]*|.+/g);
+  return (parts ?? []).map((part) => part.trim()).filter(Boolean);
+}
+
+function canonicalMentorId(numeral: string): string {
+  return `M${numeral.padStart(3, "0")}`;
+}
+
+/** Mentor ids the text names, via "M033" or "Mentor 33"; canonical form M033. */
+export function findMentorMentions(text: string): string[] {
+  const ids = new Set<string>();
+  for (const match of text.matchAll(/\bM\s?(\d{1,3})\b/gi)) {
+    ids.add(canonicalMentorId(match[1]!));
+  }
+  for (const match of text.matchAll(/\bmentor\s+(\d{1,3})\b/gi)) {
+    ids.add(canonicalMentorId(match[1]!));
+  }
+  return [...ids];
+}
+
+function mentionPatternFor(id: string): string {
+  const numeral = id.slice(1).replace(/^0+/, "") || "0";
+  return `(?:\\bM\\s?0*${numeral}\\b)|(?:\\bmentor\\s+0*${numeral}\\b)`;
+}
+
+/**
+ * Removes the sentences that name any of the given mentors.
+ * Returns null when nothing (or nothing meaningful) is left.
+ */
+export function stripMentorMentionSentences(text: string, mentionedIds: string[]): string | null {
+  if (mentionedIds.length === 0) return text.trim() || null;
+  const pattern = new RegExp(mentionedIds.map(mentionPatternFor).join("|"), "i");
+  const cleaned = splitSentences(text)
+    .filter((sentence) => !pattern.test(sentence))
+    .join(" ")
+    .trim();
+  return cleaned || null;
+}
+
+export type UserQueryClass = "unknown_mentor" | "unknown_detail" | "injection";
+
+/** Detects questions the mentor roster structurally cannot answer. */
+export function classifyUserQuery(text: string, rosterIds: Set<string>): UserQueryClass | null {
+  if (
+    /ignore\s+(?:all\s+|your\s+|previous\s+|the\s+|these\s+)*(?:your\s+)?(?:instructions|rules|prompts?)/i.test(
+      text,
+    ) ||
+    /\bdisregard\s+your\b|\byou\s+are\s+now\b|\bact\s+as\s+if\b|\bforget\s+(?:your|all|these)\b/i.test(text)
+  ) {
+    return "injection";
+  }
+  if (findMentorMentions(text).some((id) => !rosterIds.has(id))) {
+    return "unknown_mentor";
+  }
+  if (
+    /\b(?:salary|salaries|ctc|package|compensation|income|wages?)\b/i.test(text) ||
+    /\b(?:married|marriage|girlfriend|boyfriend|personal\s+life|family)\b/i.test(text) ||
+    /\bhow\s+old\b/i.test(text)
+  ) {
+    return "unknown_detail";
+  }
+  return null;
+}
+
+/**
+ * No-match replies get at most one short, labeled line of general guidance
+ * plus the kind of mentor expertise that would fit. Never a plan or roadmap.
+ */
+export function clampNoMatchMessage(message: string, category: string): string {
+  const sentences = splitSentences(message);
+  let line = sentences[0] ?? "";
+  if (!line) return `${NO_MATCH_LABEL} A mentor with relevant expertise would fit.`;
+  if (line.length > 240) line = `${line.slice(0, 240).trimEnd()}…`;
+  const expertise = category.trim() || "relevant";
+  const namesExpertise = new RegExp(escapeRegExp(expertise.split(/\s+/)[0]!), "i").test(line);
+  const guidance = namesExpertise
+    ? line
+    : `${line} For this, a mentor with ${expertise.toLowerCase()} expertise would fit.`;
+  return `${NO_MATCH_LABEL} ${guidance}`.trim();
+}
+
+/** The support card renders the helpline once; keep it out of the text. */
+export function stripSupportHelpline(message: string): string {
+  const cleaned = splitSentences(message)
+    .filter((sentence) => !/tele-?manas|14416/i.test(sentence))
+    .join(" ")
+    .trim();
+  return cleaned || SUPPORT_FALLBACK_REPLY;
+}
+
+/** Later replies never address the student by first name. */
+export function stripFirstNameGreeting(message: string, firstName: string): string {
+  const name = firstName.trim();
+  if (!name) return message;
+  return message
+    .replace(new RegExp(`^\\s*${escapeRegExp(name)}\\s*,?\\s*`, "i"), "")
+    .replace(new RegExp(`\\b${escapeRegExp(name)}\\b,?\\s*`, "gi"), "")
+    .trim();
 }

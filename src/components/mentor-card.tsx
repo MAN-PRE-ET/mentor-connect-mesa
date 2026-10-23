@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,12 @@ type MentorCardProps = {
   caveat: string | null;
 };
 
+/** "M021" → "21"; falls back to initials when the id carries no number. */
+function mentorNumber(id: string): string {
+  const found = /(\d+)/.exec(id);
+  return found ? String(Number(found[1])) : "";
+}
+
 function initials(name: string | null): string {
   if (!name?.trim()) return "M";
   return name
@@ -21,16 +28,30 @@ function initials(name: string | null): string {
     .join("");
 }
 
+const OTHER_CHIP_LIMIT = 6;
+
 export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps) {
+  const [expanded, setExpanded] = useState(false);
   const limited = (mentor.dataCompleteness ?? "").toLowerCase() === "low";
-  const sectors = (mentor.sectors ?? []).slice(0, 3);
-  const roles = (mentor.roles ?? []).slice(0, 3);
+  const number = mentorNumber(mentor.id);
+
+  // Verified evidence first and highlighted; every "why" item is a chip here.
+  const evidenceValues = new Set(evidence.map((entry) => entry.value.trim().toLowerCase()));
+  const otherChips = [
+    ...new Set(
+      [...(mentor.sectors ?? []), ...(mentor.roles ?? []), ...(mentor.domains ?? [])]
+        .filter((value) => value.trim() && !evidenceValues.has(value.trim().toLowerCase()))
+        .map((value) => value.trim()),
+    ),
+  ];
+  const visibleCount = expanded ? otherChips.length : Math.min(otherChips.length, OTHER_CHIP_LIMIT);
+  const hiddenCount = otherChips.length - visibleCount;
 
   return (
     <Card className="animate-message-in gap-3 rounded-2xl p-4 shadow-card">
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-          {initials(mentor.name)}
+          {number || initials(mentor.name)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -58,38 +79,43 @@ export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps)
         </div>
       </div>
 
-      {(sectors.length > 0 || roles.length > 0) && (
-        <div className="flex flex-wrap gap-1.5">
-          {sectors.map((sector) => (
-            <Badge key={`s-${sector}`} variant="secondary">
-              {sector}
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Why this mentor
+        </p>
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {evidence.map((entry, index) => (
+            <Badge
+              key={`${entry.field}-${index}`}
+              className="border-transparent bg-accent text-accent-foreground"
+            >
+              {fieldLabel(entry.field)}: {entry.value}
             </Badge>
           ))}
-          {roles.map((role) => (
-            <Badge key={`r-${role}`} variant="secondary">
-              {role}
+          {otherChips.slice(0, visibleCount).map((value) => (
+            <Badge key={value} variant="secondary">
+              {value}
             </Badge>
           ))}
+          {hiddenCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="inline-flex items-center rounded-full border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              +{hiddenCount} more
+            </button>
+          ) : otherChips.length > OTHER_CHIP_LIMIT ? (
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="inline-flex items-center rounded-full border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Show less
+            </button>
+          ) : null}
         </div>
-      )}
-
-      {evidence.length > 0 && (
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Why this mentor
-          </p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {evidence.map((entry, index) => (
-              <Badge
-                key={`${entry.field}-${index}`}
-                className="border-transparent bg-accent text-accent-foreground"
-              >
-                {fieldLabel(entry.field)}: {entry.value}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
 
       {caveat ? <p className="text-xs italic text-muted-foreground">Note: {caveat}</p> : null}
 
