@@ -312,6 +312,7 @@ export type Database = {
         Args: { p_booking_id: string; p_student_id: string }
         Returns: boolean
       }
+      ensure_demo_availability: { Args: never; Returns: number }
       list_demo_calls: { Args: { p_student_id: string }; Returns: Json }
     }
     Enums: {
