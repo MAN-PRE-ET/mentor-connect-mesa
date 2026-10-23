@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { mentorFieldContains, validateChatTurn } from "@/lib/chat-validation";
+import {
+  classifyUserQuery,
+  clampNoMatchMessage,
+  findMentorMentions,
+  mentorFieldContains,
+  stripFirstNameGreeting,
+  stripMentorMentionSentences,
+  stripSupportHelpline,
+  validateChatTurn,
+} from "@/lib/chat-validation";
 import type { MentorRow } from "@/lib/types";
 
 function mentor(overrides: Partial<MentorRow> = {}): MentorRow {
@@ -180,6 +189,11 @@ describe("validateChatTurn", () => {
 });
 
 describe("validateChatTurn ordering", () => {
+  const roster = new Map([
+    ["m1", mentor()],
+    ["m2", mentor({ id: "m2", name: "Vikram Rao", sectors: ["Fintech"], masterSector: "Fintech" })],
+  ]);
+
   it("sorts recommendations by verified evidence count", () => {
     const turn = validateChatTurn(
       {
