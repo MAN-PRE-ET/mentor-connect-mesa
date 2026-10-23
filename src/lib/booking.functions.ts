@@ -22,11 +22,11 @@ export const getBookingContext = createServerFn({ method: "POST" })
     const { end } = demoAvailabilityWindow(now);
     const [slots, goal, mentor] = await Promise.all([
       db.from("slots").select("id,start_time").eq("mentor_id", data.mentorId).eq("booked", false).gt("start_time", new Date(now).toISOString()).lt("start_time", new Date(end).toISOString()).order("start_time"),
-      db.from("messages").select("content").eq("conversation_id", data.conversationId).eq("role", "user").order("created_at").limit(1).single(),
+      db.rpc("booking_goal", { p_conversation_id: data.conversationId, p_mentor_id: data.mentorId }),
       db.from("mentors").select("id,name,company,city").eq("id", data.mentorId).single(),
     ]);
-    if (slots.error || goal.error || mentor.error || !mentor.data) throw new Error("Availability couldn't be loaded. Please try again.");
-    return { slots: (slots.data ?? []).map(s => ({ id: s.id, startTime: s.start_time })), goal: goal.data.content, mentor: mentor.data };
+    if (slots.error || goal.error || !goal.data || mentor.error || !mentor.data) throw new Error("Availability couldn't be loaded. Please try again.");
+    return { slots: (slots.data ?? []).map(s => ({ id: s.id, startTime: s.start_time })), goal: goal.data, mentor: mentor.data };
   });
 
 export const listBookings = createServerFn({ method: "POST" })
