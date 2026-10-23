@@ -261,6 +261,7 @@ function ChatPage() {
                             match={rec.match}
                             evidence={rec.evidence}
                             caveat={rec.caveat}
+                            conversationId={conversationId}
                           />
                         );
                       })}

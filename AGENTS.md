@@ -17,3 +17,5 @@
 - compactMentor must include the mentor `id` (the model can only cite ids it was shown), and mentorFieldContains accepts snake_case field names from the model and maps them to camelCase DTO keys.
 - Students are anonymous: only a first name, stored in localStorage; identity is first-name-only per spec.
 - Model calls run only server-side through Lovable AI Gateway (src/lib/chat.server.ts) with a strict structured-output schema; never call the model from the browser.
+- Booking uses scoped security-definer RPCs with browser-held anonymous student UUID capabilities, no direct public booking access; row locks and a unique slot protect concurrent bookings without adding account identity.
+- Calls use one shared duration for display/calendar and matching SQL overlap protection; demo availability is populated alongside its schema migration and mentor details are joined from the original dataset.

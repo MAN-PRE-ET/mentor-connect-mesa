@@ -8,6 +8,7 @@
 - [x] No-match replies: one labeled line of general guidance + fitting expertise, no plans/roadmaps.
 - [x] UI: numbered avatars, evidence chips first + "+N more" expand, recommendations sorted by evidence count.
 - [x] Wording: first name only in first reply, Tele-MANAS only in support card, distinct unknown-mentor vs unknown-detail replies, softened injection refusal.
+- [x] Add 750 demo slots for all 50 mentors, atomic booking, confirmation, and My Calls; verify real grounded recommendation → booking → reload → completion, taken-slot/overlap blocking, and mobile layout.
 
 ## Open
 - [ ] (Waiting on user) Publish when the user is ready.
