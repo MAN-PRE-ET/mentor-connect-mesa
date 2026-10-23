@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppAboutRouteImport } from './routes/_app.about'
 import { Route as AppMyCallsRouteImport } from './routes/_app.my-calls'
 import { Route as AppChatConversationIdRouteImport } from './routes/_app.chat.$conversationId'
+import { Route as AppWriteupBookingIdRouteImport } from './routes/_app.writeup.$bookingId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,18 +40,25 @@ const AppChatConversationIdRoute = AppChatConversationIdRouteImport.update({
   path: '/chat/$conversationId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWriteupBookingIdRoute = AppWriteupBookingIdRouteImport.update({
+  id: '/writeup/$bookingId',
+  path: '/writeup/$bookingId',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AppAboutRoute
   '/my-calls': typeof AppMyCallsRoute
   '/chat/$conversationId': typeof AppChatConversationIdRoute
+  '/writeup/$bookingId': typeof AppWriteupBookingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AppAboutRoute
   '/my-calls': typeof AppMyCallsRoute
   '/chat/$conversationId': typeof AppChatConversationIdRoute
+  '/writeup/$bookingId': typeof AppWriteupBookingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,23 @@ export interface FileRoutesById {
   '/_app/about': typeof AppAboutRoute
   '/_app/my-calls': typeof AppMyCallsRoute
   '/_app/chat/$conversationId': typeof AppChatConversationIdRoute
+  '/_app/writeup/$bookingId': typeof AppWriteupBookingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/my-calls' | '/chat/$conversationId'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/my-calls'
+    | '/chat/$conversationId'
+    | '/writeup/$bookingId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/my-calls' | '/chat/$conversationId'
+  to:
+    | '/'
+    | '/about'
+    | '/my-calls'
+    | '/chat/$conversationId'
+    | '/writeup/$bookingId'
   id:
     | '__root__'
     | '/'
@@ -72,6 +91,7 @@ export interface FileRouteTypes {
     | '/_app/about'
     | '/_app/my-calls'
     | '/_app/chat/$conversationId'
+    | '/_app/writeup/$bookingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatConversationIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/writeup/$bookingId': {
+      id: '/_app/writeup/$bookingId'
+      path: '/writeup/$bookingId'
+      fullPath: '/writeup/$bookingId'
+      preLoaderRoute: typeof AppWriteupBookingIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -123,12 +150,14 @@ interface AppRouteChildren {
   AppAboutRoute: typeof AppAboutRoute
   AppMyCallsRoute: typeof AppMyCallsRoute
   AppChatConversationIdRoute: typeof AppChatConversationIdRoute
+  AppWriteupBookingIdRoute: typeof AppWriteupBookingIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAboutRoute: AppAboutRoute,
   AppMyCallsRoute: AppMyCallsRoute,
   AppChatConversationIdRoute: AppChatConversationIdRoute,
+  AppWriteupBookingIdRoute: AppWriteupBookingIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

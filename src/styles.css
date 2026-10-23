@@ -176,3 +176,13 @@
 @utility typing-dot {
   animation: typing-bounce 1.2s infinite ease-in-out;
 }
+
+@media print {
+  body * { visibility: hidden; }
+  .writeup-page, .writeup-page * { visibility: visible; }
+  .writeup-page { position: absolute; inset: 0; max-width: none; padding: 0; }
+  .writeup-page .print-hidden, .writeup-page .print-hidden * { display: none; }
+  .writeup-page section, .writeup-page li { break-inside: avoid; }
+  .writeup-page { color: var(--foreground); background: var(--background); }
+  @page { margin: 18mm; }
+}
