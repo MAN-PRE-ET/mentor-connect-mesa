@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          mentor_id: string
+          note: string
+          problem_summary: string
+          slot_id: string
+          status: string
+          student_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          mentor_id: string
+          note?: string
+          problem_summary: string
+          slot_id: string
+          status?: string
+          student_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          mentor_id?: string
+          note?: string
+          problem_summary?: string
+          slot_id?: string
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: true
+            referencedRelation: "slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           category: string | null
@@ -153,6 +218,35 @@ export type Database = {
           },
         ]
       }
+      slots: {
+        Row: {
+          booked: boolean
+          id: string
+          mentor_id: string
+          start_time: string
+        }
+        Insert: {
+          booked?: boolean
+          id?: string
+          mentor_id: string
+          start_time: string
+        }
+        Update: {
+          booked?: boolean
+          id?: string
+          mentor_id?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slots_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           created_at: string
@@ -205,7 +299,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      book_demo_call: {
+        Args: {
+          p_conversation_id: string
+          p_note: string
+          p_slot_id: string
+          p_student_id: string
+        }
+        Returns: string
+      }
+      complete_demo_call: {
+        Args: { p_booking_id: string; p_student_id: string }
+        Returns: boolean
+      }
+      list_demo_calls: { Args: { p_student_id: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
