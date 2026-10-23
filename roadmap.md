@@ -11,4 +11,5 @@
 - [x] Add 750 demo slots for all 50 mentors, atomic booking, confirmation, and My Calls; verify real grounded recommendation → booking → reload → completion, taken-slot/overlap blocking, and mobile layout.
 
 ## Open
+- [ ] Keep demo availability rolling for seven IST calendar days, top up missing times automatically, and verify past times are hidden.
 - [ ] (Waiting on user) Publish when the user is ready.
