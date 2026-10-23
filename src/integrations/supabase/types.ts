@@ -308,6 +308,10 @@ export type Database = {
         }
         Returns: string
       }
+      booking_goal: {
+        Args: { p_conversation_id: string; p_mentor_id: string }
+        Returns: string
+      }
       complete_demo_call: {
         Args: { p_booking_id: string; p_student_id: string }
         Returns: boolean
