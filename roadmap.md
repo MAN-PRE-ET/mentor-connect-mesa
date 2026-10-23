@@ -10,4 +10,5 @@
 - [x] Wording: first name only in first reply, Tele-MANAS only in support card, distinct unknown-mentor vs unknown-detail replies, softened injection refusal.
 
 ## Open
+- [ ] Add demo availability, atomic booking, confirmation, and My Calls; verify booking and completion end to end.
 - [ ] (Waiting on user) Publish when the user is ready.
