@@ -25,14 +25,14 @@ export function BookingModal({ mentorId, conversationId, open, onOpenChange }: {
   const key = ["booking-context", student?.id, conversationId, mentorId];
   const context = useQuery({ queryKey: key, queryFn: () => fetchContext({ data: { studentId: student?.id ?? "", conversationId, mentorId } }), enabled: open && Boolean(student), staleTime: 0, refetchInterval: open && !booking ? 60_000 : false });
   const visibleSlots = availableDemoSlots(context.data?.slots ?? [], now);
+  useEffect(() => { if (open) setNow(Date.now()); }, [open]);
   useEffect(() => {
     if (!open || booking) return;
     const current = Date.now();
-    setNow(current);
     const nextBoundary = Math.min(current + 60_000, demoAvailabilityWindow(current).start + 24 * 60 * 60_000, ...availableDemoSlots(context.data?.slots ?? [], current).map(slot => Date.parse(slot.startTime)));
     const timer = window.setTimeout(() => { setNow(Date.now()); void context.refetch(); }, Math.max(1, nextBoundary - current));
     return () => window.clearTimeout(timer);
-  }, [open, booking, context.data, context.refetch]);
+  }, [open, booking, context.data, now, context.refetch]);
   useEffect(() => { if (context.data && !edited) setNote(context.data.goal.slice(0, NOTE_LIMIT)); }, [context.data, edited]);
   const mutation = useMutation({
     mutationFn: () => confirm({ data: { studentId: student?.id ?? "", conversationId, slotId, note } }),
