@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_items: {
+        Row: {
+          booking_id: string
+          done: boolean
+          id: string
+          task: string
+          timeframe: string | null
+        }
+        Insert: {
+          booking_id: string
+          done?: boolean
+          id?: string
+          task: string
+          timeframe?: string | null
+        }
+        Update: {
+          booking_id?: string
+          done?: boolean
+          id?: string
+          task?: string
+          timeframe?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_items_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "call_notes"
+            referencedColumns: ["booking_id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           conversation_id: string | null
@@ -75,6 +107,38 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_notes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          notes: string
+          owner_hash: string
+          summary: Json | null
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          notes?: string
+          owner_hash: string
+          summary?: Json | null
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          notes?: string
+          owner_hash?: string
+          summary?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_notes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -318,6 +382,37 @@ export type Database = {
       }
       ensure_demo_availability: { Args: never; Returns: number }
       list_demo_calls: { Args: { p_student_id: string }; Returns: Json }
+      save_call_writeup: {
+        Args: {
+          p_booking_id: string
+          p_notes: string
+          p_owner_key: string
+          p_student_id: string
+          p_summary: Json
+        }
+        Returns: boolean
+      }
+      set_writeup_action: {
+        Args: {
+          p_action_id: string
+          p_done: boolean
+          p_owner_key: string
+          p_student_id: string
+        }
+        Returns: boolean
+      }
+      writeup_context: {
+        Args: {
+          p_booking_id: string
+          p_owner_key: string
+          p_student_id: string
+        }
+        Returns: Json
+      }
+      writeup_progress: {
+        Args: { p_owner_key: string; p_student_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
