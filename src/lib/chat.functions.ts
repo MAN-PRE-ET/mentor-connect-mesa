@@ -1,10 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createServerDb } from "./db.server";
 import { callMentorMatch } from "./chat.server";
-import { validateChatTurn } from "./chat-validation";
+import {
+  clampNoMatchMessage,
+  classifyUserQuery,
+  findMentorMentions,
+  INJECTION_REFUSAL_REPLY,
+  NO_MENTOR_FALLBACK_REPLY,
+  stripFirstNameGreeting,
+  stripMentorMentionSentences,
+  stripSupportHelpline,
+  UNKNOWN_DETAIL_REPLY,
+  UNKNOWN_MENTOR_REPLY,
+  validateChatTurn,
+} from "./chat-validation";
 import type {
   ChatMessage,
   ChatResponseType,
+  ChatTurn,
   ConversationSummary,
   MentorRow,
   SendChatResult,
@@ -214,25 +227,83 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       .eq("id", conversationRow.student_id as string)
       .single();
 
+    const studentName = studentRow.data?.first_name ?? "";
+    // The student's first name may appear only in the first reply of a chat.
+    const effectiveName = isFirstMessage ? studentName : "";
+
     let raw;
     try {
-      raw = await callMentorMatch({
-        mentors,
-        history,
-        studentName: studentRow.data?.first_name ?? "",
-      });
+      raw = await callMentorMatch({ mentors, history, studentName: effectiveName });
     } catch {
       return { ok: false, error: "ai_unavailable" };
     }
 
     // 5. Validate every claim against the database rows.
     const mentorsById = new Map(mentors.map((m) => [m.id, m]));
-    const turn = validateChatTurn(raw, mentorsById);
+    let turn = validateChatTurn(raw, mentorsById);
+
+    // 5b. Deterministic wording for questions the roster cannot answer.
+    const rosterIds = new Set(mentors.map((m) => m.id));
+    const queryClass = classifyUserQuery(content, rosterIds);
+    if (queryClass === "unknown_mentor") {
+      turn = { ...turn, type: "off_topic", message: UNKNOWN_MENTOR_REPLY, recommendations: [] };
+    } else if (queryClass === "unknown_detail") {
+      turn = { ...turn, type: "off_topic", message: UNKNOWN_DETAIL_REPLY, recommendations: [] };
+    } else if (queryClass === "injection") {
+      turn = { ...turn, type: "off_topic", message: INJECTION_REFUSAL_REPLY, recommendations: [] };
+    } else {
+      // 5c. The reply text may never name a mentor that is not a validated card.
+      const validatedIds = new Set(turn.recommendations.map((rec) => rec.mentorId));
+      const unvalidated = findMentorMentions(turn.message).filter((id) => !validatedIds.has(id));
+      if (unvalidated.length > 0) {
+        const cleaned = stripMentorMentionSentences(turn.message, unvalidated);
+        if (cleaned) {
+          turn = { ...turn, message: cleaned };
+        } else {
+          // One re-ask; if the model still names an unvalidated mentor, go safe.
+          let fixed: ChatTurn | null = null;
+          try {
+            const retryRaw = await callMentorMatch({
+              mentors,
+              history,
+              studentName: effectiveName,
+              nudge: "Your previous reply named a mentor that is not in your validated recommendations. Answer again and never name a mentor that is not in your recommendations list.",
+            });
+            const retryTurn = validateChatTurn(retryRaw, mentorsById);
+            const retryValidated = new Set(retryTurn.recommendations.map((rec) => rec.mentorId));
+            if (findMentorMentions(retryTurn.message).every((id) => retryValidated.has(id))) {
+              fixed = retryTurn;
+            }
+          } catch {
+            fixed = null;
+          }
+          turn =
+            fixed ?? {
+              type: "no_match",
+              message: NO_MENTOR_FALLBACK_REPLY,
+              category: turn.category,
+              recommendations: [],
+            };
+        }
+      }
+    }
 
     if (turn.type === "no_match") {
+      // At most one labeled line of general guidance — never a plan or roadmap.
+      turn = { ...turn, message: clampNoMatchMessage(turn.message, turn.category) };
       await db
         .from("unmatched_queries")
         .insert({ conversation_id: data.conversationId, query: content });
+    }
+
+    if (turn.type === "support") {
+      // The Tele-MANAS details render once in the support card, not in the text.
+      turn = { ...turn, message: stripSupportHelpline(turn.message) };
+    }
+
+    if (!isFirstMessage) {
+      // Later replies never address the student by name.
+      turn = { ...turn, message: stripFirstNameGreeting(turn.message, studentName) };
     }
 
     // 6. Save the assistant's reply.
