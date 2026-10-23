@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "sonner";
+import { BookingModal } from "./booking-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,7 @@ type MentorCardProps = {
   match: "strong" | "partial";
   evidence: Evidence[];
   caveat: string | null;
+  conversationId: string;
 };
 
 /** "M021" → "21"; falls back to initials when the id carries no number. */
@@ -30,8 +31,9 @@ function initials(name: string | null): string {
 
 const OTHER_CHIP_LIMIT = 6;
 
-export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps) {
+export function MentorCard({ mentor, match, evidence, caveat, conversationId }: MentorCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
   const limited = (mentor.dataCompleteness ?? "").toLowerCase() === "low";
   const number = mentorNumber(mentor.id);
 
@@ -122,12 +124,11 @@ export function MentorCard({ mentor, match, evidence, caveat }: MentorCardProps)
       <Button
         size="sm"
         className="w-fit"
-        onClick={() =>
-          toast("Call booking is coming soon — mentors can't be booked in this prototype yet.")
-        }
+        onClick={() => setBookingOpen(true)}
       >
         Book a call
       </Button>
+      {bookingOpen && <BookingModal mentorId={mentor.id} conversationId={conversationId} open={bookingOpen} onOpenChange={setBookingOpen} />}
     </Card>
   );
 }
