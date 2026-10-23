@@ -9,7 +9,7 @@
 - [x] UI: numbered avatars, evidence chips first + "+N more" expand, recommendations sorted by evidence count.
 - [x] Wording: first name only in first reply, Tele-MANAS only in support card, distinct unknown-mentor vs unknown-detail replies, softened injection refusal.
 - [x] Add 750 demo slots for all 50 mentors, atomic booking, confirmation, and My Calls; verify real grounded recommendation → booking → reload → completion, taken-slot/overlap blocking, and mobile layout.
+- [x] Keep demo availability rolling for seven IST calendar days, automatically top up on app load and availability reads, hide expired times, and verify real booking-dialog reload and zero missing future slots.
 
 ## Open
-- [ ] Keep demo availability rolling for seven IST calendar days, top up missing times automatically, and verify past times are hidden.
 - [ ] (Waiting on user) Publish when the user is ready.
