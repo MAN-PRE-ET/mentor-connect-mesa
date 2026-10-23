@@ -43,6 +43,13 @@
       "when": 1792746363625,
       "tag": "0005_booking_goal_from_recommending_message",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792746381624,
+      "tag": "0006_grant_booking_goal",
+      "breakpoints": true
     }
   ]
 }
