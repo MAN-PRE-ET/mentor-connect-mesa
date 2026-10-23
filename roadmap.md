@@ -12,4 +12,5 @@
 - [x] Keep demo availability rolling for seven IST calendar days, automatically top up on app load and availability reads, hide expired times, and verify real booking-dialog reload and zero missing future slots.
 
 ## Open
+- [ ] Add private note-grounded write-ups, saved action checklists, printing, and completed-call progress; verify the complete flow.
 - [ ] (Waiting on user) Publish when the user is ready.
