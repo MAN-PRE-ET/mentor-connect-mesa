@@ -19,3 +19,4 @@
 - Model calls run only server-side through Lovable AI Gateway (src/lib/chat.server.ts) with a strict structured-output schema; never call the model from the browser.
 - Booking uses scoped security-definer RPCs with browser-held anonymous student UUID capabilities, no direct public booking access; row locks and a unique slot protect concurrent bookings without adding account identity.
 - Calls use one shared duration for display/calendar and matching SQL overlap protection; demo availability is populated alongside its schema migration and mentor details are joined from the original dataset.
+- Rolling availability is topped up through the bounded idempotent ensure_demo_availability RPC on app load and before availability reads; SQL uniqueness preserves booked slots, and server/client window filters exclude expired times without recurring background jobs.

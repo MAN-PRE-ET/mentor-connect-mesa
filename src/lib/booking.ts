@@ -13,6 +13,19 @@ export type CallBooking = {
   startTime: string;
 };
 export type DemoSlot = { id: string; startTime: string };
+export function demoAvailabilityWindow(now = Date.now()) {
+  const istOffset = 330 * 60_000;
+  const local = new Date(now + istOffset);
+  const start = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) - istOffset;
+  return { start, end: start + 7 * 24 * 60 * 60_000 };
+}
+export function availableDemoSlots(slots: DemoSlot[], now = Date.now()) {
+  const { end } = demoAvailabilityWindow(now);
+  return slots.filter(slot => {
+    const start = Date.parse(slot.startTime);
+    return start > now && start < end;
+  });
+}
 export function dayIST(value: string) {
   return new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", day: "numeric", month: "short" }).format(new Date(value));
 }

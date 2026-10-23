@@ -1,17 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createServerDb } from "./db.server";
-import { NOTE_LIMIT, type CallBooking } from "./booking";
+import { demoAvailabilityWindow, NOTE_LIMIT, type CallBooking } from "./booking";
 
 const studentSchema = z.object({ studentId: z.string().uuid() });
+export const refreshDemoAvailability = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const { error } = await createServerDb().rpc("ensure_demo_availability");
+    if (error) throw new Error("Availability couldn't be refreshed. Please try again.");
+    return { ok: true };
+  });
 export const getBookingContext = createServerFn({ method: "POST" })
   .inputValidator(z.object({ studentId: z.string().uuid(), conversationId: z.string().uuid(), mentorId: z.string() }))
   .handler(async ({ data }) => {
     const db = createServerDb();
     const { data: conversation } = await db.from("conversations").select("id").eq("id", data.conversationId).eq("student_id", data.studentId).single();
     if (!conversation) throw new Error("This conversation is unavailable.");
+    const { error: refreshError } = await db.rpc("ensure_demo_availability");
+    if (refreshError) throw new Error("Availability couldn't be loaded. Please try again.");
+    const now = Date.now();
+    const { end } = demoAvailabilityWindow(now);
     const [slots, goal, mentor] = await Promise.all([
-      db.from("slots").select("id,start_time").eq("mentor_id", data.mentorId).eq("booked", false).gt("start_time", new Date().toISOString()).order("start_time"),
+      db.from("slots").select("id,start_time").eq("mentor_id", data.mentorId).eq("booked", false).gt("start_time", new Date(now).toISOString()).lt("start_time", new Date(end).toISOString()).order("start_time"),
       db.from("messages").select("content").eq("conversation_id", data.conversationId).eq("role", "user").order("created_at").limit(1).single(),
       db.from("mentors").select("id,name,company,city").eq("id", data.mentorId).single(),
     ]);

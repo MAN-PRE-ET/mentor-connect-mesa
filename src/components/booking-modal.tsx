@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CallDetails } from "./call-details";
 import { bookCall, getBookingContext } from "@/lib/booking.functions";
-import { dayIST, timeIST, NOTE_LIMIT, type CallBooking } from "@/lib/booking";
+import { availableDemoSlots, demoAvailabilityWindow, dayIST, timeIST, NOTE_LIMIT, type CallBooking } from "@/lib/booking";
 import { useStudent } from "@/lib/student";
 
 export function BookingModal({ mentorId, conversationId, open, onOpenChange }: { mentorId: string; conversationId: string; open: boolean; onOpenChange: (open: boolean) => void }) {
@@ -21,8 +21,18 @@ export function BookingModal({ mentorId, conversationId, open, onOpenChange }: {
   const [edited, setEdited] = useState(false);
   const [error, setError] = useState("");
   const [booking, setBooking] = useState<CallBooking | null>(null);
+  const [now, setNow] = useState(Date.now);
   const key = ["booking-context", student?.id, conversationId, mentorId];
-  const context = useQuery({ queryKey: key, queryFn: () => fetchContext({ data: { studentId: student?.id ?? "", conversationId, mentorId } }), enabled: open && Boolean(student), staleTime: 0 });
+  const context = useQuery({ queryKey: key, queryFn: () => fetchContext({ data: { studentId: student?.id ?? "", conversationId, mentorId } }), enabled: open && Boolean(student), staleTime: 0, refetchInterval: open && !booking ? 60_000 : false });
+  const visibleSlots = availableDemoSlots(context.data?.slots ?? [], now);
+  useEffect(() => {
+    if (!open || booking) return;
+    const current = Date.now();
+    setNow(current);
+    const nextBoundary = Math.min(demoAvailabilityWindow(current).end, ...availableDemoSlots(context.data?.slots ?? [], current).map(slot => Date.parse(slot.startTime)));
+    const timer = window.setTimeout(() => { setNow(Date.now()); void context.refetch(); }, Math.max(1, nextBoundary - current));
+    return () => window.clearTimeout(timer);
+  }, [open, booking, context.data, now, context.refetch]);
   useEffect(() => { if (context.data && !edited) setNote(context.data.goal.slice(0, NOTE_LIMIT)); }, [context.data, edited]);
   const mutation = useMutation({
     mutationFn: () => confirm({ data: { studentId: student?.id ?? "", conversationId, slotId, note } }),
@@ -35,7 +45,7 @@ export function BookingModal({ mentorId, conversationId, open, onOpenChange }: {
     onError: e => { setError(e.message); queryClient.invalidateQueries({ queryKey: key }); },
   });
   const groups = new Map<string, NonNullable<typeof context.data>["slots"]>();
-  for (const slot of context.data?.slots ?? []) { const day = dayIST(slot.startTime); groups.set(day, [...(groups.get(day) ?? []), slot]); }
+  for (const slot of visibleSlots) { const day = dayIST(slot.startTime); groups.set(day, [...(groups.get(day) ?? []), slot]); }
   return <Dialog open={open} onOpenChange={value => { if (!mutation.isPending) onOpenChange(value); }}>
     <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-2xl sm:max-w-lg">
       <DialogHeader><DialogTitle className="flex items-center gap-2">{booking ? <CheckCircle2 className="size-5 text-success" /> : <CalendarClock className="size-5 text-primary" />}{booking ? "Your call is booked" : "Book a call"}</DialogTitle><DialogDescription>Demo availability · all times in IST</DialogDescription></DialogHeader>
@@ -45,7 +55,7 @@ export function BookingModal({ mentorId, conversationId, open, onOpenChange }: {
         <div><p className="text-xs font-medium text-muted-foreground">Your goal</p><p className="mt-1 whitespace-pre-wrap break-words text-sm">{context.data.goal}</p></div>
         <div><label htmlFor="booking-note" className="text-sm font-medium">What do you want to discuss? <span className="font-normal text-muted-foreground">(optional)</span></label><Textarea id="booking-note" className="mt-2 min-h-24" maxLength={NOTE_LIMIT} value={note} onChange={event => { setEdited(true); setNote(event.target.value); }} /><p className="mt-1 text-right text-xs text-muted-foreground">{note.length}/{NOTE_LIMIT}</p></div>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        <Button disabled={!slotId || mutation.isPending || !context.data.slots.some(s => s.id === slotId)} onClick={() => mutation.mutate()}>{mutation.isPending ? "Booking…" : "Confirm booking"}</Button>
+        <Button disabled={!slotId || mutation.isPending || !visibleSlots.some(s => s.id === slotId)} onClick={() => mutation.mutate()}>{mutation.isPending ? "Booking…" : "Confirm booking"}</Button>
       </>}
     </DialogContent>
   </Dialog>;
