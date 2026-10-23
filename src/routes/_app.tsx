@@ -1,7 +1,9 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
+import { refreshDemoAvailability } from "@/lib/booking.functions";
 
 export const Route = createFileRoute("/_app")({
+  loader: () => refreshDemoAvailability(),
   component: AppLayout,
 });
 

@@ -29,6 +29,13 @@
       "when": 1792744318610,
       "tag": "0003_add_demo_call_booking",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792744936023,
+      "tag": "0004_rolling_demo_availability",
+      "breakpoints": true
     }
   ]
 }
