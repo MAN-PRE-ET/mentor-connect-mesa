@@ -9,10 +9,12 @@ import { ThemeMenu } from "@/components/theme-menu";
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className ?? ""}`}>
-      <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-card">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-card">
         MC
       </span>
-      <span className="text-base font-semibold tracking-tight">Mentor Connect</span>
+      <span className="whitespace-nowrap text-base font-semibold tracking-tight">
+        Mentor Connect
+      </span>
     </span>
   );
 }
