@@ -10,6 +10,7 @@ export function prepareStudentKey() {
   window.sessionStorage.setItem(PENDING_KEY_STORAGE, key);
 }
 export function currentStudentKey(): string {
+  if (typeof window === "undefined") return "";
   const raw = window.localStorage.getItem(STUDENT_KEY_STORAGE);
   try {
     const student = raw ? JSON.parse(raw) : null;
