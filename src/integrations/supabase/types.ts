@@ -22,6 +22,7 @@ export type Database = {
           kind: string
           parent_id: string | null
           source_quote: string | null
+          step_order: number | null
           task: string
           timeframe: string | null
         }
@@ -32,6 +33,7 @@ export type Database = {
           kind?: string
           parent_id?: string | null
           source_quote?: string | null
+          step_order?: number | null
           task: string
           timeframe?: string | null
         }
@@ -42,6 +44,7 @@ export type Database = {
           kind?: string
           parent_id?: string | null
           source_quote?: string | null
+          step_order?: number | null
           task?: string
           timeframe?: string | null
         }

@@ -14,5 +14,7 @@
 - [x] Protect all seven student-data tables with one private per-student browser key; verified two-student read/write isolation, blocked legacy RPC bypasses, public mentors/slots, new private booking and write-up generation, saved checkboxes and reload.
 - [x] Write-up capture tabs (Quick recap default + paste notes), per-goal progress bars with call timelines, AI-suggested small steps (accept/edit/delete, labeled, count only once accepted), landing/booking copy fixes, mic dictation, WhatsApp invite, prototype note, and black-on-white printing; verified end-to-end with live AI calls and cleaned up test data.
 
+- [x] Update exhaustive quoted tasks, action-derived ordered next steps, 3–4 distinct working steps with persisted sequence, and canonical outbound links; verified six quoted tasks, deadline order, step order after reload, screen fit, 64 tests and clean build; removed disposable test data.
+
 ## Open
 - [ ] (Waiting on user) Publish when the user is ready.

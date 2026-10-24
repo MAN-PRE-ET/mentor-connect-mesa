@@ -12,7 +12,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useStudent } from "@/lib/student";
 import { useWriteupKey } from "@/lib/writeup-key";
 import { breakdown, getWriteup, manageStep, setActionDone, summarize } from "@/lib/writeup.functions";
-import { combineRecap, emptyRecap, notesWordCount, RECAP_FIELDS, type RecapValues, type SavedAction } from "@/lib/writeup";
+import { combineRecap, emptyRecap, notesWordCount, orderedActionItems, orderedWorkingSteps, RECAP_FIELDS, type RecapValues, type SavedAction } from "@/lib/writeup";
+import { friendInviteUrl } from "@/lib/app-url";
 import { useDictation } from "@/hooks/use-dictation";
 import { dayIST, timeIST } from "@/lib/booking";
 
@@ -102,9 +103,10 @@ function WriteupPage() {
   const context = writeup.data;
   const summary = context?.summary;
   const topItems = context?.actions.filter(item => !item.parentId) ?? [];
-  const childrenOf = (id: string) => context?.actions.filter(item => item.parentId === id) ?? [];
+  const childrenOf = (id: string) => orderedWorkingSteps(context?.actions.filter(item => item.parentId === id) ?? []);
   const goal = context?.call.problemSummary ?? "";
-  const inviteUrl = `https://wa.me/?text=${encodeURIComponent(`I'm getting career advice from real mentors on Mentor Connect. ${goal} — ${window.location.origin}`)}`;
+  const inviteUrl = friendInviteUrl(goal);
+  const nextSteps = context ? orderedActionItems(topItems, context.call.startTime) : [];
   return <div className="writeup-page mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-8">
     <Button variant="link" className="print-hidden mb-6 h-auto p-0" asChild><Link to="/my-calls"><ArrowLeft />My Calls</Link></Button>
     {!ready || (student && !ownerKey) || (student && writeup.isPending) ? <p role="status">Loading your write-up…</p> : !student ? <p>Return to My Calls using the browser where you booked your call.</p> : writeup.isError ? <div><p role="alert" className="text-destructive">{writeup.error.message}</p><Button variant="outline" className="mt-4" onClick={() => writeup.refetch()}>Try again</Button></div> : context && <>
@@ -124,7 +126,7 @@ function WriteupPage() {
       </div> : <div className="space-y-9">
         <section><h2 className="mb-4 text-lg font-semibold">What we discussed</h2>{summary.discussed.length ? <ul className="space-y-4">{summary.discussed.map((item, index) => <li key={index} className="break-words"><p>{item.point}</p><blockquote className="mt-2 border-l-2 pl-3 text-sm text-muted-foreground">“{item.source_quote}”</blockquote></li>)}</ul> : <p className="text-sm text-muted-foreground">No separate discussion points recorded.</p>}</section>
         <section><h2 className="mb-4 text-lg font-semibold">Your action items</h2>{topItems.length ? <ul className="divide-y">{topItems.map(item => <li key={item.id} className="py-4"><div className="flex items-start gap-3"><Checkbox id={item.id} className="mt-1" checked={item.done} disabled={action.isPending} onCheckedChange={checked => action.mutate({ actionId: item.id, done: checked === true })} /><label htmlFor={item.id} className="min-w-0 flex-1 cursor-pointer break-words"><span className={item.done ? "text-muted-foreground line-through" : ""}>{item.task}</span>{item.timeframe && <p className="mt-1 text-xs text-muted-foreground">{item.timeframe}</p>}{item.sourceQuote && <blockquote className="mt-2 border-l-2 pl-3 text-sm text-muted-foreground">“{item.sourceQuote}”</blockquote>}</label></div><div className="mt-2 ml-7 print-hidden"><Button variant="outline" size="sm" disabled={breakdownMutation.isPending} onClick={() => breakdownMutation.mutate(item.id)}><ListTree />{breakdownMutation.isPending && breakdownMutation.variables === item.id ? "Splitting into steps…" : "Break into small steps"}</Button></div><SuggestedSteps parent={item} steps={childrenOf(item.id)} onChanged={refresh} setNotice={setNotice} /></li>)}</ul> : <p className="text-sm text-muted-foreground">No action items agreed in these notes.</p>}</section>
-        <section><h2 className="mb-3 text-lg font-semibold">Next steps</h2><p className="whitespace-pre-wrap break-words text-sm">{summary.next_steps || "No next steps recorded in your notes."}</p></section>
+        <section><h2 className="mb-3 text-lg font-semibold">Next steps</h2>{nextSteps.length ? <ol className="list-decimal space-y-2 pl-5 text-sm">{nextSteps.map(item => <li key={item.id} className="break-words">{item.task}{item.timeframe && <span className="text-muted-foreground"> — {item.timeframe}</span>}</li>)}</ol> : <p className="text-sm">No next steps recorded in your notes.</p>}</section>
         <section><h2 className="mb-3 text-lg font-semibold">Suggested follow-up</h2><p className="whitespace-pre-wrap break-words text-sm">{summary.suggested_followup_topic || "No follow-up topic recorded in your notes."}</p></section>
       </div>}
     </>}
