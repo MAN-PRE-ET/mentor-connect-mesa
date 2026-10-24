@@ -13,5 +13,6 @@
 - [x] Add private note-grounded write-ups, saved action checklists, printing, and completed-call progress; verify generation, short-note prompt, saved checkboxes, earlier open-action context, mobile fit and privacy restrictions.
 
 ## Open
+- [ ] (Blocked by current AI service failure) Recheck generation after server-only save hardening; earlier live write-up generation, follow-up and saved checkboxes passed.
 - [ ] (Waiting on user) Choose privacy protection for existing public student/chat records flagged by the security scan.
 - [ ] (Waiting on user) Publish when the user is ready.
