@@ -17,7 +17,7 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
 
   const conversationsQuery = useQuery({
     queryKey: ["conversations", student?.id],
-    queryFn: () => listConversations({ data: { studentId: student!.id } }),
+    queryFn: () => listConversations({ data: { studentId: student?.id ?? "" } }),
     enabled: Boolean(student),
   });
 
