@@ -316,16 +316,19 @@ export type Database = {
           created_at: string
           first_name: string
           id: string
+          private_key_hash: string | null
         }
         Insert: {
           created_at?: string
           first_name: string
           id?: string
+          private_key_hash?: string | null
         }
         Update: {
           created_at?: string
           first_name?: string
           id?: string
+          private_key_hash?: string | null
         }
         Relationships: []
       }
@@ -380,8 +383,16 @@ export type Database = {
         Args: { p_booking_id: string; p_student_id: string }
         Returns: boolean
       }
+      create_private_student: { Args: { p_first_name: string }; Returns: Json }
       ensure_demo_availability: { Args: never; Returns: number }
       list_demo_calls: { Args: { p_student_id: string }; Returns: Json }
+      owns_booking: { Args: { p_booking_id: string }; Returns: boolean }
+      owns_conversation: {
+        Args: { p_conversation_id: string }
+        Returns: boolean
+      }
+      owns_student: { Args: { p_student_id: string }; Returns: boolean }
+      request_student_key_hash: { Args: never; Returns: string }
       save_call_writeup: {
         Args: {
           p_booking_id: string

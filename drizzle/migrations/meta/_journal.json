@@ -64,6 +64,13 @@
       "when": 1792800702150,
       "tag": "0008_server_only_writeup_save",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792804300867,
+      "tag": "0009_student_browser_key_isolation",
+      "breakpoints": true
     }
   ]
 }
