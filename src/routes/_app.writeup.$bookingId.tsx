@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, FileText, ListTree, Mic, Pencil, Printer, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, MessageSquare, FileText, ListTree, Mic, Pencil, Printer, Sparkles, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WriteupSkeleton } from "@/components/skeletons";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useStudent } from "@/lib/student";
@@ -36,7 +37,7 @@ function RecapField({ label, value, onChange, disabled }: { label: string; value
       <label className="text-sm font-medium">{label}</label>
       <div className="relative mt-1">
         <Textarea className="min-h-20" value={value} onChange={event => onChange(event.target.value)} disabled={disabled} placeholder="Speak or type…" />
-        {supported && <Button type="button" variant="ghost" size="icon" className="absolute right-1.5 bottom-1.5 size-8 text-muted-foreground" aria-label={listening ? `Stop dictating ${label}` : `Dictate ${label}`} aria-pressed={listening} disabled={disabled} onClick={toggle}><Mic className={listening ? "animate-soft-pulse text-destructive" : ""} /></Button>}
+        {supported ? <Button type="button" variant="ghost" size="icon" className="absolute right-1.5 bottom-1.5 size-8 text-muted-foreground" aria-label={listening ? `Stop dictating ${label}` : `Dictate ${label}`} aria-pressed={listening} disabled={disabled} onClick={toggle}><Mic className={listening ? "animate-soft-pulse text-destructive" : ""} /></Button> : <TooltipProvider><Tooltip><TooltipTrigger asChild><span tabIndex={0} className="absolute right-1.5 bottom-1.5 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground opacity-50" aria-label="Voice dictation works in Chrome and Edge" aria-disabled="true"><Mic className="size-4" /></span></TooltipTrigger><TooltipContent>Voice dictation works in Chrome and Edge</TooltipContent></Tooltip></TooltipProvider>}
       </div>
     </div>
   );
@@ -106,7 +107,7 @@ function WriteupPage() {
   const childrenOf = (id: string) => orderedWorkingSteps(context?.actions.filter(item => item.parentId === id) ?? []);
   const nextSteps = context ? orderedActionItems(topItems, context.call.startTime) : [];
   return <div className="writeup-page mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-8">
-    <Button variant="link" className="print-hidden mb-6 h-auto p-0" asChild><Link to="/my-calls"><ArrowLeft />My Calls</Link></Button>
+    <div className="print-hidden mb-6 flex flex-wrap items-center gap-x-6 gap-y-2"><Button variant="link" className="h-auto p-0" asChild><Link to="/my-calls"><ArrowLeft />My Calls</Link></Button>{writeup.data?.call.conversationId && <Button variant="link" className="h-auto p-0" asChild><Link to="/chat/$conversationId" params={{ conversationId: writeup.data.call.conversationId }}><MessageSquare />Back to conversation</Link></Button>}</div>
     {!ready || (student && !ownerKey) || (student && writeup.isPending) ? <WriteupSkeleton /> : !student ? <p>Return to My Calls using the browser where you booked your call.</p> : writeup.isError ? <div><p role="alert" className="text-destructive">{writeup.error.message}</p><Button variant="outline" className="mt-4" onClick={() => writeup.refetch()}>Try again</Button></div> : context && <>
       <header className="mb-8 border-b pb-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><FileText className="mb-3 size-7 text-primary" /><h1 className="text-2xl font-semibold text-balance">Notes from your call, organized by Mentor Connect</h1><p className="mt-2 font-medium">{context.call.mentorName}</p><p className="mt-1 text-sm text-muted-foreground">{dayIST(context.call.startTime)} · {timeIST(context.call.startTime)} IST</p></div><div className="print-hidden flex flex-wrap gap-2">{summary && <Button variant="outline" onClick={() => window.print()}><Printer />Print / Save as PDF</Button>}</div></div><p className="mt-5 text-xs font-medium text-muted-foreground">Your goal</p><p className="mt-1 whitespace-pre-wrap break-words text-sm">{context.call.problemSummary}</p></header>
       {notice && <p role="alert" className="print-hidden mb-5 rounded-lg border border-caution p-4 text-sm">{notice}</p>}
