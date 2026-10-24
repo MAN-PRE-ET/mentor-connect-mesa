@@ -178,7 +178,8 @@ function Landing() {
       </main>
 
       <footer className="relative z-10 pb-6 text-center text-xs text-muted-foreground">
-        Mentor Connect — Mesa School of Business
+        Mentor Connect — Mesa School of Business ·{" "}
+        <Link to="/admin" className="underline underline-offset-2 hover:text-foreground">Admin</Link>
       </footer>
 
       <Dialog open={nameOpen} onOpenChange={setNameOpen}>
