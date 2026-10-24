@@ -11,8 +11,7 @@
 - [x] Add 750 demo slots for all 50 mentors, atomic booking, confirmation, and My Calls; verify real grounded recommendation → booking → reload → completion, taken-slot/overlap blocking, and mobile layout.
 - [x] Keep demo availability rolling for seven IST calendar days, automatically top up on app load and availability reads, hide expired times, and verify real booking-dialog reload and zero missing future slots.
 - [x] Add private note-grounded write-ups, saved action checklists, printing, and completed-call progress; verify generation, short-note prompt, saved checkboxes, earlier open-action context, mobile fit and privacy restrictions.
+- [x] Protect all seven student-data tables with one private per-student browser key; verified two-student read/write isolation, blocked legacy RPC bypasses, public mentors/slots, new private booking and write-up generation, saved checkboxes and reload.
 
 ## Open
-- [ ] (Blocked by current AI service failure) Recheck generation after server-only save hardening; earlier live write-up generation, follow-up and saved checkboxes passed.
-- [ ] Protect all student data with private per-student browser keys, leave old test rows inaccessible, verify isolation and resolve the three security findings.
 - [ ] (Waiting on user) Publish when the user is ready.
