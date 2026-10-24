@@ -189,20 +189,23 @@ export function classifyUserQuery(text: string, rosterIds: Set<string>): UserQue
 }
 
 /**
- * No-match replies get at most one short, labeled line of general guidance
- * plus the kind of mentor expertise that would fit. Never a plan or roadmap.
+ * No-match replies have exactly two short parts, built deterministically:
+ * (a) the labeled guidance — no mentor with documented expertise in the
+ *     student's goal, plus the kind of expertise that would fit;
+ * (b) one short line on what the roster can still help with.
+ * Never a plan, roadmap, course, tool, link or step. The model's own
+ * message is ignored so the wording can't drift.
  */
-export function clampNoMatchMessage(message: string, category: string): string {
-  const sentences = splitSentences(message);
-  let line = sentences[0] ?? "";
-  if (!line) return `${NO_MATCH_LABEL} A mentor with relevant expertise would fit.`;
-  if (line.length > 240) line = `${line.slice(0, 240).trimEnd()}…`;
-  const expertise = category.trim() || "relevant";
-  const namesExpertise = new RegExp(escapeRegExp(expertise.split(/\s+/)[0]!), "i").test(line);
-  const guidance = namesExpertise
-    ? line
-    : `${line} For this, a mentor with ${expertise.toLowerCase()} expertise would fit.`;
-  return `${NO_MATCH_LABEL} ${guidance}`.trim();
+export const NO_MATCH_HELP_LINE =
+  "I can still match you with mentors in product, marketing, growth or business roles if that's useful.";
+
+export function clampNoMatchMessage(_message: string, category: string): string {
+  const goal = category.trim().toLowerCase() || "this area";
+  const gap =
+    goal === "this area"
+      ? "Our list has no mentor with documented expertise in this area, so someone with hands-on experience here would fit best."
+      : `Our list has no mentor with documented expertise in ${goal}, so someone with hands-on ${goal} experience would fit best.`;
+  return `${NO_MATCH_LABEL} ${gap} ${NO_MATCH_HELP_LINE}`;
 }
 
 /** The support card renders the helpline once; keep it out of the text. */
