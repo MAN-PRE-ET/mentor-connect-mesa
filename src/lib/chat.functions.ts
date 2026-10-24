@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createServerDb } from "./db.server";
+import { requireStudent, requireConversation, requestStudentKey } from "./student-auth.server";
 import { callMentorMatch } from "./chat.server";
 import {
   clampNoMatchMessage,
@@ -90,20 +91,17 @@ function toConversationDto(row: DbMentor): ConversationSummary {
 export const createStudent = createServerFn({ method: "POST" })
   .inputValidator((input: { firstName: string }) => input)
   .handler(async ({ data }): Promise<Student> => {
+    requestStudentKey();
     const db = createServerDb();
-    const { data: row, error } = await db
-      .from("students")
-      .insert({ first_name: data.firstName.trim() })
-      .select()
-      .single();
+    const { data: row, error } = await db.rpc("create_private_student", { p_first_name: data.firstName.trim() });
     if (error || !row) throw new Error("student_create_failed");
-    return { id: row.id, firstName: row.first_name };
+    return row as unknown as Student;
   });
 
 export const listConversations = createServerFn({ method: "POST" })
   .inputValidator((input: { studentId: string }) => input)
   .handler(async ({ data }): Promise<ConversationSummary[]> => {
-    const db = createServerDb();
+    const db = await requireStudent(data.studentId);
     const { data: rows, error } = await db
       .from("conversations")
       .select("*")
@@ -117,7 +115,7 @@ export const listConversations = createServerFn({ method: "POST" })
 export const createConversation = createServerFn({ method: "POST" })
   .inputValidator((input: { studentId: string }) => input)
   .handler(async ({ data }): Promise<ConversationSummary> => {
-    const db = createServerDb();
+    const db = await requireStudent(data.studentId);
     const { data: row, error } = await db
       .from("conversations")
       .insert({ student_id: data.studentId, title: "New chat" })
@@ -130,7 +128,7 @@ export const createConversation = createServerFn({ method: "POST" })
 export const deleteConversation = createServerFn({ method: "POST" })
   .inputValidator((input: { conversationId: string }) => input)
   .handler(async ({ data }): Promise<{ ok: true }> => {
-    const db = createServerDb();
+    const db = await requireConversation(data.conversationId);
     const { error } = await db.from("conversations").delete().eq("id", data.conversationId);
     if (error) throw new Error("conversation_delete_failed");
     return { ok: true };
@@ -140,7 +138,7 @@ export const getConversation = createServerFn({ method: "GET" })
   .inputValidator((input: { conversationId: string }) => input)
   .handler(
     async ({ data }): Promise<{ conversation: ConversationSummary; messages: ChatMessage[] }> => {
-      const db = createServerDb();
+      const db = await requireConversation(data.conversationId);
       const [conversationResult, messagesResult] = await Promise.all([
         db.from("conversations").select("*").eq("id", data.conversationId).single(),
         db
@@ -171,7 +169,7 @@ export const getMentorsByIds = createServerFn({ method: "POST" })
 export const sendChatMessage = createServerFn({ method: "POST" })
   .inputValidator((input: { conversationId: string; content: string }) => input)
   .handler(async ({ data }): Promise<SendChatResult> => {
-    const db = createServerDb();
+    const db = await requireConversation(data.conversationId);
     const content = data.content.trim();
     if (!content) return { ok: false, error: "send_failed" };
 

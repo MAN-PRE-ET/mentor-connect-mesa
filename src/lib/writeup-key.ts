@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
+import { studentKeyStorage } from "./student-key";
 
-// An independent capability protects private notes even if a public student UUID leaks.
+// The same student capability protects notes, chats, calls and progress.
 export function useWriteupKey(studentId: string | undefined) {
   const [ownerKey, setOwnerKey] = useState("");
   useEffect(() => {
     if (!studentId) { setOwnerKey(""); return; }
-    const storageKey = `mentor_connect_writeup_key_${studentId}`;
-    let key = window.localStorage.getItem(storageKey);
-    if (!key || !/^[a-f0-9]{64}$/.test(key)) {
-      key = Array.from(crypto.getRandomValues(new Uint8Array(32)), value => value.toString(16).padStart(2, "0")).join("");
-      window.localStorage.setItem(storageKey, key);
-    }
-    setOwnerKey(key);
+    setOwnerKey(window.localStorage.getItem(studentKeyStorage(studentId)) ?? "");
   }, [studentId]);
   return ownerKey;
 }
