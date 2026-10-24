@@ -227,7 +227,7 @@ function ChatPage() {
                       key={example}
                       type="button"
                       onClick={() => send.mutate(example)}
-                      className="rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-card transition-colors hover:border-primary/40 hover:text-foreground"
+                      className="inline-flex min-h-10 items-center rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-card transition-colors hover:border-primary/40 hover:text-foreground"
                     >
                       {example}
                     </button>
@@ -285,7 +285,7 @@ function ChatPage() {
         </Conversation>
 
         <div className="shrink-0 border-t bg-background/80 backdrop-blur">
-          <div className="mx-auto w-full max-w-3xl p-4">
+          <div className="mx-auto w-full max-w-3xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <PromptInput onSubmit={handleSubmit}>
               <PromptInputTextarea placeholder="What are you stuck on?" />
               <PromptInputFooter className="justify-end">

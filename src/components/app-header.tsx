@@ -3,15 +3,18 @@ import { toast } from "sonner";
 import { createConversation, listConversations } from "@/lib/chat.functions";
 import { useStudent } from "@/lib/student";
 import { Button } from "@/components/ui/button";
+import { ThemeMenu } from "@/components/theme-menu";
 
 /** Domain wordmark: a monogram tile plus the product name. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className ?? ""}`}>
-      <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-card">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-card">
         MC
       </span>
-      <span className="text-base font-semibold tracking-tight">Mentor Connect</span>
+      <span className="whitespace-nowrap text-base font-semibold tracking-tight">
+        Mentor Connect
+      </span>
     </span>
   );
 }
@@ -109,6 +112,7 @@ export function AppHeader() {
               {link.label}
             </Button>
           ))}
+          <ThemeMenu />
           {student ? (
             <span className="ml-1 flex items-center gap-2 rounded-full bg-secondary py-1 pr-3 pl-1 text-sm font-medium text-secondary-foreground">
               <span className="flex size-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">

@@ -50,7 +50,7 @@ export function MentorCard({ mentor, match, evidence, caveat, conversationId }: 
   const hiddenCount = otherChips.length - visibleCount;
 
   return (
-    <Card className="animate-message-in gap-3 rounded-2xl p-4 shadow-card">
+    <Card className="animate-message-in gap-3 rounded-2xl p-4 shadow-card transition-shadow focus-within:ring-2 focus-within:ring-ring hover:shadow-lift">
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
           {number || initials(mentor.name)}
@@ -95,7 +95,7 @@ export function MentorCard({ mentor, match, evidence, caveat, conversationId }: 
             </Badge>
           ))}
           {otherChips.slice(0, visibleCount).map((value) => (
-            <Badge key={value} variant="secondary">
+            <Badge key={value} variant="secondary" className="px-2.5 py-0.5">
               {value}
             </Badge>
           ))}

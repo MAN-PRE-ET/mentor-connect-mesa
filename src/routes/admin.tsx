@@ -6,6 +6,7 @@ import { AlertTriangle, BarChart3, BookOpen, CalendarCheck, KeyRound, Lock, Mess
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ThemeMenu } from "@/components/theme-menu";
 import { getAdminDashboard, lockAdmin, verifyAdminPasscode, type AdminDashboard } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
@@ -144,6 +145,7 @@ export function Dashboard({ data }: { data: AdminDashboard }) {
             <Button variant="outline" size="sm" onClick={() => void onLock()}>
               <Lock /> Lock
             </Button>
+            <ThemeMenu />
           </div>
         </div>
       </header>
