@@ -22,4 +22,5 @@
 - [x] Lower write-up gate to 20 words with same-goal prior-action exception; enforce clicked-action-only working steps, verified live AI, saved UI results and reload.
 
 ## Open
+- [ ] Verify mobile header navigation, history My Calls shortcut, 44px targets and theme/keyboard behavior; keep desktop unchanged.
 - [ ] (Waiting on user) Publish when the user is ready.

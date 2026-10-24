@@ -19,7 +19,7 @@ const THEMES: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
 ];
 
 /** Icon menu for theme mode and text size; works on mobile. */
-export function ThemeMenu() {
+export function ThemeMenu({ className }: { className?: string }) {
   const { mode, textSize } = useTheme();
   return (
     <DropdownMenu>
@@ -27,13 +27,13 @@ export function ThemeMenu() {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-lg"
+          className={`rounded-lg ${className ?? ""}`}
           aria-label="Theme and text size settings"
         >
           <Palette className="size-5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
+      <DropdownMenuContent align="end" className="w-52 max-md:[&_[role=menuitemradio]]:min-h-11">
         <DropdownMenuLabel>Theme</DropdownMenuLabel>
         <DropdownMenuRadioGroup
           value={mode}
