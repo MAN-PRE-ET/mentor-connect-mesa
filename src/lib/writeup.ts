@@ -16,18 +16,19 @@ export type ProgressCall = { bookingId: string; mentorName: string; startTime: s
 export type GoalProgress = { conversationId: string | null; title: string | null; goal: string; open: number; done: number; calls: ProgressCall[] };
 export type SummaryResult = { ok: true; summary: CallSummary } | { ok: false; needs_more: boolean; message: string };
 export type BreakdownResult = { ok: true; steps: SavedAction[] } | { ok: false; message: string };
-export const MORE_DETAIL = { ok: false, needs_more: true, message: "Please add a little more detail about what you discussed and agreed to do. Around 40 words and at least two specific points will help us create a faithful write-up." } as const;
+export const MIN_NOTES_WORDS = 20;
+export const MORE_DETAIL = { ok: false, needs_more: true, message: "Please add a little more detail about what you discussed and agreed to do. Aim for around 20 words and at least two specific quoted points, or one if you have open action items from an earlier call on this goal." } as const;
 export const normalizeQuote = (text: string) => text.toLocaleLowerCase().replace(/\s+/g, " ").trim();
 export const notesWordCount = (notes: string) => notes.trim().split(/\s+/).filter(Boolean).length;
 export function quoteFound(notes: string, quote: string) {
   const normalized = normalizeQuote(quote);
   return normalized.length > 0 && normalizeQuote(notes).includes(normalized);
 }
-export function validateSummary(notes: string, summary: CallSummary): SummaryResult {
-  if (notesWordCount(notes) < 40) return MORE_DETAIL;
+export function validateSummary(notes: string, summary: CallSummary, hasPriorOpenActions = false): SummaryResult {
+  if (notesWordCount(notes) < MIN_NOTES_WORDS) return MORE_DETAIL;
   const discussed = summary.discussed.filter(item => item.point.trim() && quoteFound(notes, item.source_quote));
   const action_items = summary.action_items.filter(item => item.task.trim() && quoteFound(notes, item.source_quote)).map(item => ({ ...item, suggested_timeframe: item.suggested_timeframe && quoteFound(notes, item.suggested_timeframe) ? item.suggested_timeframe : null }));
-  if (discussed.length + action_items.length < 2) return MORE_DETAIL;
+  if (discussed.length + action_items.length < (hasPriorOpenActions ? 1 : 2)) return MORE_DETAIL;
   // Free-text sections must themselves be verbatim excerpts, not unquoted advice.
   return { ok: true, summary: { discussed, action_items, next_steps: quoteFound(notes, summary.next_steps) ? summary.next_steps : "", suggested_followup_topic: quoteFound(notes, summary.suggested_followup_topic) ? summary.suggested_followup_topic : "" } };
 }
@@ -45,6 +46,17 @@ export function orderedWorkingSteps<T extends { stepOrder?: number | null }>(ste
 
 // AI-suggested working steps for one action item, distinct and free of resources/claims.
 export const stepsSchema = z.object({ steps: z.array(z.string()).min(3).max(4) }).strict();
+export const stepScopeSchema = z.object({ within_selected_action: z.boolean() }).strict();
+
+// A conservative local backstop for explicit references to another saved task.
+// Semantic scope is also independently checked server-side before persistence.
+export function validateStepScope(steps: string[], task: string, otherTasks: string[]): boolean {
+  const generic = new Set(["the", "and", "with", "your", "for", "from", "into", "that", "this", "then", "write", "writing", "revise", "update", "review", "draft", "prepare", "create", "send", "finish", "complete", "feedback", "get", "outline"]);
+  const words = (text: string) => normalizeQuote(text).normalize("NFD").replace(/\p{M}/gu, "").match(/[a-z]+/g) ?? [];
+  const selected = new Set(words(task));
+  const excluded = new Set(otherTasks.flatMap(other => words(other).filter(word => word.length > 2 && !generic.has(word) && !selected.has(word))));
+  return steps.every(step => words(step).every(word => !excluded.has(word)));
+}
 export function validateSteps(steps: unknown): string[] | null {
   if (!Array.isArray(steps)) return null;
   if (steps.some(step => typeof step !== "string" || !step.trim())) return null;

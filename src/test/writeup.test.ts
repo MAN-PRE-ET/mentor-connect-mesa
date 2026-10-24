@@ -1,12 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { combineRecap, emptyRecap, orderedActionItems, orderedWorkingSteps, quoteFound, validateSteps, validateSummary, type CallSummary } from "../lib/writeup";
+import { combineRecap, emptyRecap, orderedActionItems, orderedWorkingSteps, quoteFound, validateStepScope, validateSteps, validateSummary, type CallSummary } from "../lib/writeup";
 
 const notes = "We discussed my portfolio and the story behind my project. I will revise the case study by Friday. I will send the updated portfolio to the mentor. Next time we will discuss interview practice and review the changes together in detail.";
 const summary: CallSummary = { discussed: [{ point: "Portfolio story", source_quote: "my portfolio and the story behind my project" }], action_items: [{ task: "Revise the case study", source_quote: "I will revise the case study by Friday", suggested_timeframe: "by Friday" }], next_steps: "I will send the updated portfolio to the mentor", suggested_followup_topic: "interview practice" };
 describe("notes-only write-ups", () => {
   it("matches quotes case-insensitively with whitespace normalized", () => expect(quoteFound(notes, "MY   PORTFOLIO\nand the story")).toBe(true));
   it("rejects empty and invented quotes", () => { expect(quoteFound(notes, "")).toBe(false); expect(quoteFound(notes, "Take a paid course")).toBe(false); });
-  it("asks for detail below 40 words", () => expect(validateSummary("We talked about work.", summary)).toMatchObject({ needs_more: true }));
+  it("rejects 19 words, including when prior open actions exist, but accepts 20 with two quoted items", () => {
+    const twenty = "We discussed my portfolio and project story today. I will revise the case study and explain the problem more clearly.";
+    const shortSummary = { ...summary, discussed: [{ point: "Portfolio", source_quote: "my portfolio" }], action_items: [{ task: "Revise the case study", source_quote: "revise the case study", suggested_timeframe: null }] };
+    expect(validateSummary(twenty.split(" ").slice(0, 19).join(" "), shortSummary, true)).toMatchObject({ needs_more: true });
+    expect(validateSummary(twenty, shortSummary).ok).toBe(true);
+  });
+  it("allows one valid quoted item only with earlier same-goal open actions", () => {
+    const one = { ...summary, discussed: [], action_items: summary.action_items };
+    expect(validateSummary(notes, one).ok).toBe(false);
+    expect(validateSummary(notes, one, true).ok).toBe(true);
+    expect(validateSummary(notes, { ...one, action_items: [{ ...summary.action_items[0], task: "Invented", source_quote: "not in notes", suggested_timeframe: null }] }, true)).toMatchObject({ needs_more: true });
+  });
   it("requires at least two surviving items", () => expect(validateSummary(notes, { ...summary, action_items: [{ task: "Invented", suggested_timeframe: null, source_quote: "not in notes" }] })).toMatchObject({ needs_more: true }));
   it("drops unsupported items while retaining verified ones", () => { const result = validateSummary(notes, { ...summary, discussed: [...summary.discussed, { point: "Invented", source_quote: "invented evidence" }] }); expect(result.ok && result.summary.discussed.length).toBe(1); });
   it("clears invented timeframes", () => { const result = validateSummary(notes, { ...summary, action_items: [{ task: "Revise the case study", source_quote: "I will revise the case study by Friday", suggested_timeframe: "tomorrow" }] }); expect(result.ok && result.summary.action_items[0]?.suggested_timeframe).toBeNull(); });
@@ -30,6 +41,14 @@ describe("quick recap capture", () => {
 });
 describe("AI-suggested small steps", () => {
   const working = ["Choose the product", "Write the problem statement", "Outline the sections", "Get feedback"];
+  it("rejects resume work under a case-study action while retaining in-scope ordered work", () => {
+    expect(validateStepScope(working, "Write a case study", ["Update my resume"])).toBe(true);
+    expect(validateStepScope(["Choose the product", "Revise the resume", "Get feedback"], "Write a case study", ["Update my resume"])).toBe(false);
+  });
+  it("rejects case-study work under a resume action without banning shared generic operations", () => {
+    expect(validateStepScope(["Review the experience", "Revise the resume", "Proofread the draft"], "Update my resume", ["Write a case study"])).toBe(true);
+    expect(validateStepScope(["Review the experience", "Write the case study", "Proofread the draft"], "Update my resume", ["Write a case study"])).toBe(false);
+  });
   it("keeps working steps in their saved start-to-finish sequence, not random id order", () => expect(orderedWorkingSteps([{ task: "Get feedback", stepOrder: 4 }, { task: "Write the problem statement", stepOrder: 2 }, { task: "Choose the product", stepOrder: 1 }, { task: "Outline the sections", stepOrder: 3 }]).map(step => step.task)).toEqual(working));
   it("accepts 3-4 practical trimmed working steps", () => { expect(validateSteps(working.map(step => ` ${step} `))).toEqual(working); expect(validateSteps(working.slice(0, 3))).toEqual(working.slice(0, 3)); });
   it("rejects fewer than 3 or more than 4 steps", () => { expect(validateSteps(working.slice(0, 2))).toBeNull(); expect(validateSteps([...working, "Revise the draft"])).toBeNull(); });
