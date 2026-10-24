@@ -84,9 +84,10 @@ export const manageStep = createServerFn({ method: "POST" }).inputValidator(iden
   setResponseHeader("Cache-Control", "no-store");
   await requireStudent(data.studentId);
   if (requestStudentKey() !== data.ownerKey) throw new Error(unavailable);
-  if (data.action === "edit" && !data.task?.trim()) throw new Error("The step can't be empty.");
+  const task = data.task?.trim() ?? "";
+  if (data.action === "edit" && !task) throw new Error("The step can't be empty.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const result = await supabaseAdmin.rpc("manage_suggested_step", { p_student_id: data.studentId, p_action_id: data.actionId, p_owner_key: data.ownerKey, p_action: data.action, p_task: data.action === "edit" ? data.task?.trim() : null });
+  const result = await supabaseAdmin.rpc("manage_suggested_step", { p_student_id: data.studentId, p_action_id: data.actionId, p_owner_key: data.ownerKey, p_action: data.action, p_task: task });
   if (result.error || !result.data) throw new Error("That step couldn't be updated. Please try again.");
   return { ok: true };
 });
