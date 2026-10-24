@@ -67,6 +67,7 @@ function ChatPage() {
   const queryClient = useQueryClient();
   const { student, ready } = useStudent();
   const [sendError, setSendError] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const lastSentRef = useRef("");
   const autoSentRef = useRef(false);
 
@@ -182,15 +183,15 @@ function ChatPage() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex h-14 shrink-0 items-center gap-2 border-b px-3 lg:hidden">
-          <Sheet>
+          <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open conversations">
+              <Button variant="ghost" size="icon" className="size-11" aria-label="Open conversations">
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0">
+            <SheetContent side="left" aria-describedby={undefined} className="w-72 p-0 pt-16 [&>button]:flex [&>button]:size-11 [&>button]:items-center [&>button]:justify-center">
               <SheetTitle className="sr-only">Conversations</SheetTitle>
-              <ChatSidebar activeId={conversationId} />
+              <ChatSidebar activeId={conversationId} drawer onNavigate={() => setHistoryOpen(false)} />
             </SheetContent>
           </Sheet>
           <span className="truncate text-sm font-medium">{conversation?.title ?? "Chat"}</span>

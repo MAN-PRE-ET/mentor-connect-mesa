@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { MessageSquarePlus, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { CalendarDays, MessageSquarePlus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { createConversation, deleteConversation, listConversations } from "@/lib
 import { useStudent } from "@/lib/student";
 import { cn } from "@/lib/utils";
 
-export function ChatSidebar({ activeId }: { activeId?: string }) {
+export function ChatSidebar({ activeId, drawer = false, onNavigate }: { activeId?: string; drawer?: boolean; onNavigate?: () => void }) {
   const { student } = useStudent();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -27,6 +27,7 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
       return createConversation({ data: { studentId: student.id } });
     },
     onSuccess: (conversation) => {
+      onNavigate?.();
       queryClient.invalidateQueries({ queryKey: ["conversations", student?.id] });
       navigate({
         to: "/chat/$conversationId",
@@ -50,10 +51,10 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="p-3">
+      <div className="space-y-2 p-3">
         <Button
           variant="outline"
-          className="w-full justify-start gap-2 rounded-xl"
+          className={cn("w-full justify-start gap-2 rounded-xl", drawer && "min-h-11")}
           disabled={!student || creating || createMutation.isPending}
           onClick={() => {
             setCreating(true);
@@ -63,6 +64,11 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
           <MessageSquarePlus className="size-4" />
           New chat
         </Button>
+        {drawer ? (
+          <Button asChild variant="ghost" className="min-h-11 w-full justify-start gap-2">
+            <Link to="/my-calls" onClick={onNavigate}><CalendarDays className="size-4" />My Calls</Link>
+          </Button>
+        ) : null}
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 pb-3">
@@ -83,16 +89,18 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() =>
+                  onClick={() => {
+                    onNavigate?.();
                     navigate({
                       to: "/chat/$conversationId",
                       params: { conversationId: conversation.id },
                       search: { q: undefined },
-                    })
-                  }
+                    });
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
+                      onNavigate?.();
                       navigate({
                         to: "/chat/$conversationId",
                         params: { conversationId: conversation.id },
@@ -102,6 +110,7 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
                   }}
                   className={cn(
                     "flex h-9 cursor-pointer items-center overflow-hidden rounded-lg pr-9 pl-3 text-sm transition-colors",
+                    drawer && "h-11 pr-12 focus-visible:outline-2 focus-visible:outline-ring",
                     conversation.id === activeId
                       ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent/60",
@@ -112,7 +121,7 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
                 <button
                   type="button"
                   aria-label={`Delete chat: ${conversation.title || "New chat"}`}
-                  className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100"
+                  className={cn("absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100", drawer && "flex size-11 items-center justify-center opacity-100")}
                   disabled={deleteMutation.isPending}
                   onClick={(event) => {
                     event.stopPropagation();
