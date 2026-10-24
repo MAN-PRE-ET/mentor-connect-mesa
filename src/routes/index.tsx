@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
 const EXAMPLES = [
   "I want to move from data analytics into product management — where do I start?",
   "Should I specialize in AI product management?",
-  "I've been passed over for a promotion twice. What am I missing?",
+  "I'm a final-year student interested in marketing at a SaaS company",
 ];
 
 function Landing() {

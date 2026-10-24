@@ -71,6 +71,13 @@
       "when": 1792804300867,
       "tag": "0009_student_browser_key_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792805374590,
+      "tag": "0010_writeup_checkpoints_goal_progress",
+      "breakpoints": true
     }
   ]
 }

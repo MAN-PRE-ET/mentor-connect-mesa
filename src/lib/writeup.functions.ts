@@ -2,8 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireStudent, requestStudentKey } from "./student-auth.server";
-import { summarizeNotes } from "./writeup-ai.server";
-import { MORE_DETAIL, notesWordCount, type WriteupContext, type ProgressCall, type SummaryResult } from "./writeup";
+import { breakdownAction, summarizeNotes } from "./writeup-ai.server";
+import { MORE_DETAIL, notesWordCount, type BreakdownResult, type GoalProgress, type ProgressCall, type SavedAction, type SummaryResult, type WriteupContext } from "./writeup";
 
 const identity = z.object({ studentId: z.string().uuid(), ownerKey: z.string().regex(/^[a-f0-9]{64}$/) });
 const callInput = identity.extend({ bookingId: z.string().uuid() });
@@ -25,6 +25,15 @@ export const getProgress = createServerFn({ method: "POST" }).inputValidator(ide
   const result = await supabaseAdmin.rpc("writeup_progress", { p_student_id: data.studentId, p_owner_key: data.ownerKey });
   if (result.error) throw new Error("Your progress couldn't be loaded. Please try again.");
   return result.data as unknown as ProgressCall[];
+});
+export const getGoalProgress = createServerFn({ method: "POST" }).inputValidator(identity).handler(async ({ data }): Promise<GoalProgress[]> => {
+  setResponseHeader("Cache-Control", "no-store");
+  await requireStudent(data.studentId);
+  if (requestStudentKey() !== data.ownerKey) throw new Error(unavailable);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const result = await supabaseAdmin.rpc("goal_progress", { p_student_id: data.studentId, p_owner_key: data.ownerKey });
+  if (result.error) throw new Error("Your progress couldn't be loaded. Please try again.");
+  return result.data as unknown as GoalProgress[];
 });
 export const summarize = createServerFn({ method: "POST" }).inputValidator(callInput.extend({ notes: z.string().max(30000) })).handler(async ({ data }): Promise<SummaryResult> => {
   setResponseHeader("Cache-Control", "no-store");
@@ -52,5 +61,33 @@ export const setActionDone = createServerFn({ method: "POST" }).inputValidator(i
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const result = await supabaseAdmin.rpc("set_writeup_action", { p_student_id: data.studentId, p_action_id: data.actionId, p_owner_key: data.ownerKey, p_done: data.done });
   if (result.error || !result.data) throw new Error("This action couldn't be saved. Please try again.");
+  return { ok: true };
+});
+export const breakdown = createServerFn({ method: "POST" }).inputValidator(identity.extend({ actionId: z.string().uuid() })).handler(async ({ data }): Promise<BreakdownResult> => {
+  setResponseHeader("Cache-Control", "no-store");
+  await requireStudent(data.studentId);
+  if (requestStudentKey() !== data.ownerKey) return { ok: false, message: unavailable };
+  const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+  const item = await db.rpc("action_for_breakdown", { p_student_id: data.studentId, p_action_id: data.actionId, p_owner_key: data.ownerKey });
+  if (item.error || !item.data) return { ok: false, message: unavailable };
+  const target = item.data as { task: string; timeframe: string | null };
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (!apiKey) return { ok: false, message: "The write-up service isn't configured yet." };
+  const steps = await breakdownAction(apiKey, target.task, target.timeframe);
+  if (!steps) return { ok: false, message: "We couldn't split this into small steps. Please try again." };
+  // Persistence only after the scoped owner check and step validation above.
+  const saved = await db.rpc("save_suggested_steps", { p_student_id: data.studentId, p_parent_id: data.actionId, p_owner_key: data.ownerKey, p_steps: steps });
+  if (saved.error || !saved.data) return { ok: false, message: "The suggested steps couldn't be saved. Please try again." };
+  return { ok: true, steps: saved.data as unknown as SavedAction[] };
+});
+export const manageStep = createServerFn({ method: "POST" }).inputValidator(identity.extend({ actionId: z.string().uuid(), action: z.enum(["accept", "edit", "delete"]), task: z.string().max(300).optional() })).handler(async ({ data }) => {
+  setResponseHeader("Cache-Control", "no-store");
+  await requireStudent(data.studentId);
+  if (requestStudentKey() !== data.ownerKey) throw new Error(unavailable);
+  const task = data.task?.trim() ?? "";
+  if (data.action === "edit" && !task) throw new Error("The step can't be empty.");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const result = await supabaseAdmin.rpc("manage_suggested_step", { p_student_id: data.studentId, p_action_id: data.actionId, p_owner_key: data.ownerKey, p_action: data.action, p_task: task });
+  if (result.error || !result.data) throw new Error("That step couldn't be updated. Please try again.");
   return { ok: true };
 });

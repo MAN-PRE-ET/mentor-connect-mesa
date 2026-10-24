@@ -19,6 +19,9 @@ export type Database = {
           booking_id: string
           done: boolean
           id: string
+          kind: string
+          parent_id: string | null
+          source_quote: string | null
           task: string
           timeframe: string | null
         }
@@ -26,6 +29,9 @@ export type Database = {
           booking_id: string
           done?: boolean
           id?: string
+          kind?: string
+          parent_id?: string | null
+          source_quote?: string | null
           task: string
           timeframe?: string | null
         }
@@ -33,6 +39,9 @@ export type Database = {
           booking_id?: string
           done?: boolean
           id?: string
+          kind?: string
+          parent_id?: string | null
+          source_quote?: string | null
           task?: string
           timeframe?: string | null
         }
@@ -43,6 +52,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "call_notes"
             referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "action_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "action_items"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -366,6 +382,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      action_for_breakdown: {
+        Args: { p_action_id: string; p_owner_key: string; p_student_id: string }
+        Returns: Json
+      }
       book_demo_call: {
         Args: {
           p_conversation_id: string
@@ -385,7 +405,21 @@ export type Database = {
       }
       create_private_student: { Args: { p_first_name: string }; Returns: Json }
       ensure_demo_availability: { Args: never; Returns: number }
+      goal_progress: {
+        Args: { p_owner_key: string; p_student_id: string }
+        Returns: Json
+      }
       list_demo_calls: { Args: { p_student_id: string }; Returns: Json }
+      manage_suggested_step: {
+        Args: {
+          p_action: string
+          p_action_id: string
+          p_owner_key: string
+          p_student_id: string
+          p_task?: string
+        }
+        Returns: boolean
+      }
       owns_booking: { Args: { p_booking_id: string }; Returns: boolean }
       owns_conversation: {
         Args: { p_conversation_id: string }
@@ -402,6 +436,15 @@ export type Database = {
           p_summary: Json
         }
         Returns: boolean
+      }
+      save_suggested_steps: {
+        Args: {
+          p_owner_key: string
+          p_parent_id: string
+          p_steps: Json
+          p_student_id: string
+        }
+        Returns: Json
       }
       set_writeup_action: {
         Args: {
