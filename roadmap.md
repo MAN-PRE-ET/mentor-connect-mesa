@@ -20,4 +20,5 @@
 - [x] Theme modes and UI polish: header theme menu (Light/Dark/High contrast/System + Normal/Large text, localStorage, no-flash pre-paint script), high-contrast token theme, WCAG-AA focus rings, reduced-motion support, print stays black-on-white; landing hierarchy + trust note, 44px booking slots with selected state, skeletons for calls/write-up/slots, mentor card hover/focus; verified all themes at 360px with zero overflow on landing, chat, cards, booking, My Calls, About, /admin; test students removed.
 
 ## Open
+- [ ] Lower write-up gate to 20 words with same-goal prior-action exception; enforce clicked-action-only working steps and verify both.
 - [ ] (Waiting on user) Publish when the user is ready.
