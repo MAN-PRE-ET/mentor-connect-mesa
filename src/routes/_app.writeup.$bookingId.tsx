@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, FileText, ListTree, MessageCircle, Mic, Pencil, Printer, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, FileText, ListTree, Mic, Pencil, Printer, Sparkles, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,7 +13,6 @@ import { useStudent } from "@/lib/student";
 import { useWriteupKey } from "@/lib/writeup-key";
 import { breakdown, getWriteup, manageStep, setActionDone, summarize } from "@/lib/writeup.functions";
 import { combineRecap, emptyRecap, notesWordCount, orderedActionItems, orderedWorkingSteps, RECAP_FIELDS, type RecapValues, type SavedAction } from "@/lib/writeup";
-import { friendInviteUrl } from "@/lib/app-url";
 import { useDictation } from "@/hooks/use-dictation";
 import { dayIST, timeIST } from "@/lib/booking";
 
@@ -104,13 +103,11 @@ function WriteupPage() {
   const summary = context?.summary;
   const topItems = context?.actions.filter(item => !item.parentId) ?? [];
   const childrenOf = (id: string) => orderedWorkingSteps(context?.actions.filter(item => item.parentId === id) ?? []);
-  const goal = context?.call.problemSummary ?? "";
-  const inviteUrl = friendInviteUrl(goal);
   const nextSteps = context ? orderedActionItems(topItems, context.call.startTime) : [];
   return <div className="writeup-page mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-8">
     <Button variant="link" className="print-hidden mb-6 h-auto p-0" asChild><Link to="/my-calls"><ArrowLeft />My Calls</Link></Button>
     {!ready || (student && !ownerKey) || (student && writeup.isPending) ? <p role="status">Loading your write-up…</p> : !student ? <p>Return to My Calls using the browser where you booked your call.</p> : writeup.isError ? <div><p role="alert" className="text-destructive">{writeup.error.message}</p><Button variant="outline" className="mt-4" onClick={() => writeup.refetch()}>Try again</Button></div> : context && <>
-      <header className="mb-8 border-b pb-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><FileText className="mb-3 size-7 text-primary" /><h1 className="text-2xl font-semibold text-balance">Notes from your call, organized by Mentor Connect</h1><p className="mt-2 font-medium">{context.call.mentorName}</p><p className="mt-1 text-sm text-muted-foreground">{dayIST(context.call.startTime)} · {timeIST(context.call.startTime)} IST</p></div><div className="print-hidden flex flex-wrap gap-2">{summary && <Button variant="outline" onClick={() => window.print()}><Printer />Print / Save as PDF</Button>}<Button variant="outline" asChild><a href={inviteUrl} target="_blank" rel="noopener noreferrer"><MessageCircle />Invite a friend</a></Button></div></div><p className="mt-5 text-xs font-medium text-muted-foreground">Your goal</p><p className="mt-1 whitespace-pre-wrap break-words text-sm">{context.call.problemSummary}</p></header>
+      <header className="mb-8 border-b pb-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><FileText className="mb-3 size-7 text-primary" /><h1 className="text-2xl font-semibold text-balance">Notes from your call, organized by Mentor Connect</h1><p className="mt-2 font-medium">{context.call.mentorName}</p><p className="mt-1 text-sm text-muted-foreground">{dayIST(context.call.startTime)} · {timeIST(context.call.startTime)} IST</p></div><div className="print-hidden flex flex-wrap gap-2">{summary && <Button variant="outline" onClick={() => window.print()}><Printer />Print / Save as PDF</Button>}</div></div><p className="mt-5 text-xs font-medium text-muted-foreground">Your goal</p><p className="mt-1 whitespace-pre-wrap break-words text-sm">{context.call.problemSummary}</p></header>
       {notice && <p role="alert" className="print-hidden mb-5 rounded-lg border border-caution p-4 text-sm">{notice}</p>}
       {!summary ? <div className="space-y-4">
         <Tabs value={mode} onValueChange={value => setMode(value as "recap" | "paste")}>
