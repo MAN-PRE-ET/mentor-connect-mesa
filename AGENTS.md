@@ -28,3 +28,4 @@
 - Next steps are derived from original saved action items with chrono-node deadline ordering anchored to the call time, not model free text, so they cannot introduce unquoted tasks.
 - Canonical outbound app links are composed in src/lib/app-url.ts and shared by calendar descriptions and conversation returns, so preview origins cannot leak into shares.
 - Working steps persist their generation sequence in action_items.step_order and read it only after scoped write-up ownership verification, so random UUID ordering cannot scramble the workflow after reload.
+- The /admin dashboard is gated by the ADMIN_PASSCODE server secret (timing-safe check, HMAC-signed cookie) and reads only aggregates through the service-role-only admin_dashboard_stats SQL function; student-table privacy rules are never loosened for it and no student text, names, notes or booking details leave the server.
