@@ -272,14 +272,25 @@ describe("classifyUserQuery", () => {
 });
 
 describe("clampNoMatchMessage", () => {
-  it("keeps one labeled line and adds the expertise fit", () => {
+  it("builds exactly two parts: labeled gap line plus help line", () => {
     const out = clampNoMatchMessage(
       "Try a bootcamp. Then network. Then apply widely.",
-      "Product Management",
+      "Backend Engineering",
     );
     expect(out.startsWith("General guidance (not from our mentors):")).toBe(true);
-    expect(out).toContain("product management expertise");
+    expect(out).toContain("no mentor with documented expertise in backend engineering");
+    expect(out).toContain("hands-on backend engineering experience");
+    expect(out).toContain(
+      "I can still match you with mentors in product, marketing, growth or business roles if that's useful.",
+    );
+    // The model's own plan is ignored entirely.
     expect(out).not.toContain("network");
+    expect(out).not.toContain("bootcamp");
+  });
+
+  it("falls back to a generic gap line when the category is empty", () => {
+    const out = clampNoMatchMessage("Anything.", "");
+    expect(out).toContain("no mentor with documented expertise in this area");
   });
 });
 
