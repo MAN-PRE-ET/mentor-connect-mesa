@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowUp, ShieldCheck } from "lucide-react";
+import { ArrowUp, Info, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { LogoMark } from "@/components/app-header";
 import { ThemeMenu } from "@/components/theme-menu";
@@ -105,7 +105,7 @@ function Landing() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-125 bg-[radial-gradient(60%_60%_at_50%_0%,var(--hero-glow)_0%,transparent_70%)]"
       />
-      <header className="relative z-10 flex items-center justify-between px-6 py-5 lg:px-10">
+      <header className="relative z-10 flex items-center justify-between gap-2 px-4 py-5 sm:px-6 lg:px-10">
         <LogoMark />
         <div className="flex items-center gap-1">
           <Button
@@ -114,7 +114,9 @@ function Landing() {
             className="rounded-lg text-muted-foreground"
             onClick={() => navigate({ to: "/about" })}
           >
-            About this prototype
+            <Info className="size-4 sm:hidden" aria-hidden />
+            <span className="hidden sm:inline">About this prototype</span>
+            <span className="sr-only sm:hidden">About this prototype</span>
           </Button>
           <ThemeMenu />
         </div>
