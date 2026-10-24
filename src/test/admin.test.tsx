@@ -14,6 +14,12 @@ vi.mock("recharts", () => ({
   CartesianGrid: () => null,
 }));
 
+vi.mock("@/lib/admin.functions", () => ({
+  getAdminDashboard: vi.fn(),
+  lockAdmin: vi.fn(),
+  verifyAdminPasscode: vi.fn(),
+}));
+
 vi.mock("@tanstack/react-start", () => ({
   useServerFn: () => vi.fn(async () => ({ ok: true })),
 }));
