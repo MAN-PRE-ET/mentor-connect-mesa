@@ -118,7 +118,7 @@ function BarPanel({ title, rows, empty }: { title: string; rows: { name: string;
   );
 }
 
-function Dashboard({ data }: { data: AdminDashboard }) {
+export function Dashboard({ data }: { data: AdminDashboard }) {
   const router = useRouter();
   const lock = useServerFn(lockAdmin);
   const unmatchedShare = data.chats === 0 ? "—" : `${Math.round((data.unmatchedChats / data.chats) * 100)}%`;
