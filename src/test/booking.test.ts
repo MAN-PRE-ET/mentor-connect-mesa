@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { availableDemoSlots, demoAvailabilityWindow, dayIST, timeIST, googleCalendarUrl, isPastCall, type CallBooking } from "../lib/booking";
+import { APP_URL, conversationUrl, friendInviteUrl } from "../lib/app-url";
 const call: CallBooking = { id: "booking", mentorId: "M001", mentorName: "Mentor 001", company: null, city: null, conversationId: "conversation", problemSummary: "Move into product", note: "Discuss an analytics project", status: "upcoming", startTime: "2026-10-26T05:30:00Z" };
 describe("demo call rules", () => {
   it("covers today plus six days in IST, including across UTC midnight", () => {
@@ -20,4 +21,7 @@ describe("demo call rules", () => {
   it("moves manually completed calls into past immediately", () => { expect(isPastCall({ ...call, status: "completed" }, Date.parse("2026-10-23T00:00Z"))).toBe(true); expect(isPastCall(call, Date.parse("2026-10-23T00:00Z"))).toBe(false); });
   it("moves elapsed calls into past after their 30-minute duration", () => { expect(isPastCall(call, Date.parse("2026-10-26T05:59:59Z"))).toBe(false); expect(isPastCall(call, Date.parse("2026-10-26T06:00:00Z"))).toBe(true); });
   it("builds Google Calendar without OAuth using the saved goal and edited note", () => { const url = new URL(googleCalendarUrl(call)); expect(url.origin).toBe("https://calendar.google.com"); expect(url.searchParams.get("action")).toBe("TEMPLATE"); expect(url.searchParams.get("dates")).toBe("20261026T053000Z/20261026T060000Z"); expect(url.searchParams.get("ctz")).toBe("Asia/Kolkata"); expect(url.searchParams.get("details")).toContain(call.problemSummary); expect(url.searchParams.get("details")).toContain(call.note); });
+  it("uses the canonical published URL in the calendar description", () => { expect(APP_URL).toBe("https://mentor-connect-mesa.lovable.app"); expect(new URL(googleCalendarUrl(call)).searchParams.get("details")).toContain("Back to conversation: https://mentor-connect-mesa.lovable.app/chat/conversation"); });
+  it("shares only the goal and canonical app URL in the invitation", () => { const text = new URL(friendInviteUrl(call.problemSummary)).searchParams.get("text"); expect(text).toContain("Move into product — https://mentor-connect-mesa.lovable.app"); expect(text).not.toContain(call.note); });
+  it("returns to the conversation on the canonical app URL", () => expect(conversationUrl("conversation")).toBe("https://mentor-connect-mesa.lovable.app/chat/conversation"));
 });
