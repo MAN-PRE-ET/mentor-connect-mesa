@@ -183,6 +183,8 @@
   .writeup-page { position: absolute; inset: 0; max-width: none; padding: 0; }
   .writeup-page .print-hidden, .writeup-page .print-hidden * { display: none; }
   .writeup-page section, .writeup-page li { break-inside: avoid; }
-  .writeup-page { color: var(--foreground); background: var(--background); }
+  /* Always print black on white, regardless of theme. */
+  .writeup-page { color: #000; background: #fff; }
+  .writeup-page, .writeup-page * { color: #000 !important; background: transparent !important; border-color: #000 !important; box-shadow: none !important; }
   @page { margin: 18mm; }
 }

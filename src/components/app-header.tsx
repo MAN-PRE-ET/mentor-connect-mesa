@@ -79,13 +79,16 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 h-16 shrink-0 border-b bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-full items-center justify-between gap-4 px-4 lg:px-6">
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/" })}
-          className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <LogoMark />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/" })}
+            className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <LogoMark />
+          </button>
+          <span className="hidden rounded-full bg-secondary px-2.5 py-1 text-xs text-muted-foreground md:inline">Free to use in this prototype</span>
+        </div>
         <nav className="flex items-center gap-1 sm:gap-2">
           <Button
             variant="ghost"
