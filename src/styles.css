@@ -119,6 +119,85 @@
   --sidebar-border: oklch(1 0 0 / 10%);
 }
 
+/*
+ * High contrast theme: pure black and white, strong borders, no light-gray
+ * text. Status colors stay vivid but always on near-black backgrounds.
+ */
+.contrast {
+  --hero-glow: transparent;
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(1 0 0 / 16%);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(1 0 0 / 16%);
+  --muted-foreground: oklch(1 0 0);
+  --accent: oklch(1 0 0);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.78 0.21 25);
+  --destructive-foreground: oklch(0 0 0);
+  --success: oklch(0.87 0.24 145);
+  --success-foreground: oklch(0 0 0);
+  --caution: oklch(0.92 0.18 95);
+  --caution-foreground: oklch(1 0 0);
+  --border: oklch(1 0 0);
+  --input: oklch(1 0 0);
+  --ring: oklch(1 0 0);
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(1 0 0 / 16%);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0);
+}
+
+/* High contrast: strong borders instead of soft shadows, underlined links,
+   thicker focus rings. */
+.contrast .shadow-card,
+.contrast .shadow-lift {
+  box-shadow: none;
+}
+
+.contrast :is([data-slot="card"], .rounded-2xl, input, textarea, select, [role="dialog"]) {
+  border-width: 2px;
+}
+
+.contrast a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Text size option (Normal / Large) scales all rem-based sizing. */
+html[data-text-size="large"] {
+  font-size: 18px;
+}
+
+/* Always-visible keyboard focus. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.contrast :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline-width: 4px;
+}
+
+/* Respect reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
