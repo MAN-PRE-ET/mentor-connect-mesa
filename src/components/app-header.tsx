@@ -52,10 +52,11 @@ export function useOpenLatestChat() {
     }
     try {
       const conversations = await listConversations({ data: { studentId: student.id } });
-      if (conversations.length > 0) {
+      const latestConversation = conversations[0];
+      if (latestConversation) {
         navigate({
           to: "/chat/$conversationId",
-          params: { conversationId: conversations[0].id },
+          params: { conversationId: latestConversation.id },
           search: { q: undefined },
         });
         return;
