@@ -15,4 +15,5 @@
 - [x] Write-up capture tabs (Quick recap default + paste notes), per-goal progress bars with call timelines, AI-suggested small steps (accept/edit/delete, labeled, count only once accepted), landing/booking copy fixes, mic dictation, WhatsApp invite, prototype note, and black-on-white printing; verified end-to-end with live AI calls and cleaned up test data.
 
 ## Open
+- [ ] Update exhaustive quoted tasks, action-derived ordered next steps, 3–4 distinct working steps, and canonical outbound links; verify tests and live write-up flow.
 - [ ] (Waiting on user) Publish when the user is ready.
