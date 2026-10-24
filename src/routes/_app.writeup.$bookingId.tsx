@@ -12,7 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useStudent } from "@/lib/student";
 import { useWriteupKey } from "@/lib/writeup-key";
 import { breakdown, getWriteup, manageStep, setActionDone, summarize } from "@/lib/writeup.functions";
-import { combineRecap, emptyRecap, notesWordCount, orderedActionItems, RECAP_FIELDS, type RecapValues, type SavedAction } from "@/lib/writeup";
+import { combineRecap, emptyRecap, notesWordCount, orderedActionItems, orderedWorkingSteps, RECAP_FIELDS, type RecapValues, type SavedAction } from "@/lib/writeup";
 import { friendInviteUrl } from "@/lib/app-url";
 import { useDictation } from "@/hooks/use-dictation";
 import { dayIST, timeIST } from "@/lib/booking";
@@ -103,7 +103,7 @@ function WriteupPage() {
   const context = writeup.data;
   const summary = context?.summary;
   const topItems = context?.actions.filter(item => !item.parentId) ?? [];
-  const childrenOf = (id: string) => context?.actions.filter(item => item.parentId === id) ?? [];
+  const childrenOf = (id: string) => orderedWorkingSteps(context?.actions.filter(item => item.parentId === id) ?? []);
   const goal = context?.call.problemSummary ?? "";
   const inviteUrl = friendInviteUrl(goal);
   const nextSteps = context ? orderedActionItems(topItems, context.call.startTime) : [];

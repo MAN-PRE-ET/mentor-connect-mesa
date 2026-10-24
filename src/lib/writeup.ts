@@ -10,7 +10,7 @@ export const summarySchema = z.object({
 }).strict();
 export type CallSummary = z.infer<typeof summarySchema>;
 export type ActionKind = "call" | "suggested" | "accepted";
-export type SavedAction = { id: string; bookingId: string; task: string; timeframe: string | null; done: boolean; sourceQuote: string | null; kind: ActionKind; parentId: string | null };
+export type SavedAction = { id: string; bookingId: string; task: string; timeframe: string | null; done: boolean; sourceQuote: string | null; kind: ActionKind; parentId: string | null; stepOrder?: number | null };
 export type WriteupContext = { call: CallBooking; notes: string; summary: CallSummary | null; actions: SavedAction[]; priorOpenActions: { task: string; timeframe: string | null }[] };
 export type ProgressCall = { bookingId: string; mentorName: string; startTime: string; ready: boolean; open: number; done: number };
 export type GoalProgress = { conversationId: string | null; title: string | null; goal: string; open: number; done: number; calls: ProgressCall[] };
@@ -37,6 +37,10 @@ export function orderedActionItems<T extends { task: string; timeframe: string |
   const referenceDate = new Date(reference);
   const rank = (item: T) => item.timeframe ? (parseDate(item.timeframe, { instant: referenceDate, timezone: 330 }, { forwardDate: true })?.getTime() ?? Number.MAX_SAFE_INTEGER) : Infinity;
   return [...items].sort((a, b) => rank(a) - rank(b));
+}
+
+export function orderedWorkingSteps<T extends { stepOrder?: number | null }>(steps: T[]): T[] {
+  return [...steps].sort((a, b) => (a.stepOrder ?? Infinity) - (b.stepOrder ?? Infinity));
 }
 
 // AI-suggested working steps for one action item, distinct and free of resources/claims.

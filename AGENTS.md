@@ -27,3 +27,4 @@
 - Goal progress is computed by the scoped goal_progress RPC (grouped by conversation, counting kind IN ('call','accepted')); breakdown model calls validate distinct working steps and reject resources/claims before the service-role save RPC stores anything.
 - Next steps are derived from original saved action items with chrono-node deadline ordering anchored to the call time, not model free text, so they cannot introduce unquoted tasks.
 - Canonical outbound app links are composed in src/lib/app-url.ts and shared by invites, calendar descriptions and conversation returns, so preview origins cannot leak into shares.
+- Working steps persist their generation sequence in action_items.step_order and read it only after scoped write-up ownership verification, so random UUID ordering cannot scramble the workflow after reload.

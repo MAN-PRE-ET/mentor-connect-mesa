@@ -15,7 +15,11 @@ export const getWriteup = createServerFn({ method: "POST" }).inputValidator(call
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const result = await supabaseAdmin.rpc("writeup_context", { p_student_id: data.studentId, p_booking_id: data.bookingId, p_owner_key: data.ownerKey });
   if (result.error || !result.data) throw new Error(unavailable);
-  return result.data as unknown as WriteupContext;
+  const context = result.data as unknown as WriteupContext;
+  const order = await supabaseAdmin.from("action_items").select("id, step_order").eq("booking_id", data.bookingId);
+  if (order.error) throw new Error(unavailable);
+  const positions = new Map(order.data.map(item => [item.id, item.step_order]));
+  return { ...context, actions: context.actions.map(item => ({ ...item, stepOrder: positions.get(item.id) ?? null })) };
 });
 export const getProgress = createServerFn({ method: "POST" }).inputValidator(identity).handler(async ({ data }): Promise<ProgressCall[]> => {
   setResponseHeader("Cache-Control", "no-store");

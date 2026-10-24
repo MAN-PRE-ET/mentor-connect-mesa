@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { combineRecap, emptyRecap, orderedActionItems, quoteFound, validateSteps, validateSummary, type CallSummary } from "../lib/writeup";
+import { combineRecap, emptyRecap, orderedActionItems, orderedWorkingSteps, quoteFound, validateSteps, validateSummary, type CallSummary } from "../lib/writeup";
 
 const notes = "We discussed my portfolio and the story behind my project. I will revise the case study by Friday. I will send the updated portfolio to the mentor. Next time we will discuss interview practice and review the changes together in detail.";
 const summary: CallSummary = { discussed: [{ point: "Portfolio story", source_quote: "my portfolio and the story behind my project" }], action_items: [{ task: "Revise the case study", source_quote: "I will revise the case study by Friday", suggested_timeframe: "by Friday" }], next_steps: "I will send the updated portfolio to the mentor", suggested_followup_topic: "interview practice" };
@@ -30,6 +30,7 @@ describe("quick recap capture", () => {
 });
 describe("AI-suggested small steps", () => {
   const working = ["Choose the product", "Write the problem statement", "Outline the sections", "Get feedback"];
+  it("keeps working steps in their saved start-to-finish sequence, not random id order", () => expect(orderedWorkingSteps([{ task: "Get feedback", stepOrder: 4 }, { task: "Write the problem statement", stepOrder: 2 }, { task: "Choose the product", stepOrder: 1 }, { task: "Outline the sections", stepOrder: 3 }]).map(step => step.task)).toEqual(working));
   it("accepts 3-4 practical trimmed working steps", () => { expect(validateSteps(working.map(step => ` ${step} `))).toEqual(working); expect(validateSteps(working.slice(0, 3))).toEqual(working.slice(0, 3)); });
   it("rejects fewer than 3 or more than 4 steps", () => { expect(validateSteps(working.slice(0, 2))).toBeNull(); expect(validateSteps([...working, "Revise the draft"])).toBeNull(); });
   it.each(["Read https://example.com/guide", "Email mentor@example.com", "Open Figma", "Take a course", "Choose a tool", "Use 50% growth statistics", "Follow what the mentor said", "Ask Alice for feedback"])("rejects forbidden step content: %s", invalid => expect(validateSteps([working[0], working[1], invalid])).toBeNull());
