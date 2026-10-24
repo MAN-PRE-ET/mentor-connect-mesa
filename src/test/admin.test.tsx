@@ -50,9 +50,9 @@ const data: AdminDashboard = {
 describe("Admin dashboard", () => {
   it("shows KPI counts and computed rates from aggregates only", () => {
     render(<Dashboard data={data} />);
-    expect(screen.getByText("Students").nextSibling?.textContent).toBe("5");
-    expect(screen.getByText("14")).toBeTruthy(); // chats
-    expect(screen.getByText("7")).toBeTruthy(); // bookings
+    expect(screen.getByText("Students").closest(".rounded-2xl")?.textContent).toContain("5");
+    expect(screen.getByText("Chats").closest(".rounded-2xl")?.textContent).toContain("14");
+    expect(screen.getByText("Bookings").closest(".rounded-2xl")?.textContent).toContain("7");
     // booking rate 7/6 -> 117%, write-up completion 1/3 -> 33%
     expect(screen.getByText("117%")).toBeTruthy();
     expect(screen.getByText("33%")).toBeTruthy();
