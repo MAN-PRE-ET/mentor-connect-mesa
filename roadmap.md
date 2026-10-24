@@ -15,6 +15,7 @@
 - [x] Write-up capture tabs (Quick recap default + paste notes), per-goal progress bars with call timelines, AI-suggested small steps (accept/edit/delete, labeled, count only once accepted), landing/booking copy fixes, mic dictation, prototype note, and black-on-white printing; verified end-to-end with live AI calls and cleaned up test data.
 
 - [x] Update exhaustive quoted tasks, action-derived ordered next steps, 3–4 distinct working steps with persisted sequence, and canonical outbound links; verified six quoted tasks, deadline order, step order after reload, screen fit, 64 tests and clean build; removed disposable test data.
+- [x] Remove the write-up "Invite a friend" button, its WhatsApp share link, helper and test; kept Print / Save as PDF, the prototype note, the calendar link and "Back to conversation"; verified no invite or wa.me markup remains, 63 tests and clean build; removed disposable test data.
 
 ## Open
 - [ ] (Waiting on user) Publish when the user is ready.
