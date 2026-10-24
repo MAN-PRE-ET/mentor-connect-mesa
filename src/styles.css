@@ -56,6 +56,7 @@
 
 :root {
   --radius: 1rem;
+  --hero-glow: oklch(0.951 0.024 274);
   --background: oklch(0.995 0.003 280);
   --foreground: oklch(0.22 0.035 268);
   --card: oklch(1 0 0);
@@ -87,6 +88,7 @@
 }
 
 .dark {
+  --hero-glow: oklch(0.3 0.06 272 / 45%);
   --background: oklch(0.17 0.025 268);
   --foreground: oklch(0.97 0.005 275);
   --card: oklch(0.21 0.03 268);
