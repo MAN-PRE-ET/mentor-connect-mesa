@@ -3,6 +3,7 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireStudent, requestStudentKey } from "./student-auth.server";
 import { breakdownAction, summarizeNotes } from "./writeup-ai.server";
+import { sameGoalOpenActions } from "./writeup-history.server";
 import { MIN_NOTES_WORDS, MORE_DETAIL, notesWordCount, type BreakdownResult, type GoalProgress, type ProgressCall, type SavedAction, type SummaryResult, type WriteupContext } from "./writeup";
 
 const identity = z.object({ studentId: z.string().uuid(), ownerKey: z.string().regex(/^[a-f0-9]{64}$/) });
@@ -19,7 +20,7 @@ export const getWriteup = createServerFn({ method: "POST" }).inputValidator(call
   const order = await supabaseAdmin.from("action_items").select("id, step_order").eq("booking_id", data.bookingId);
   if (order.error) throw new Error(unavailable);
   const positions = new Map(order.data.map(item => [item.id, item.step_order]));
-  return { ...context, actions: context.actions.map(item => ({ ...item, stepOrder: positions.get(item.id) ?? null })) };
+  return { ...context, priorOpenActions: await sameGoalOpenActions(supabaseAdmin, data.studentId, context), actions: context.actions.map(item => ({ ...item, stepOrder: positions.get(item.id) ?? null })) };
 });
 export const getProgress = createServerFn({ method: "POST" }).inputValidator(identity).handler(async ({ data }): Promise<ProgressCall[]> => {
   setResponseHeader("Cache-Control", "no-store");
@@ -51,7 +52,8 @@ export const summarize = createServerFn({ method: "POST" }).inputValidator(callI
   if (notesWordCount(data.notes) < MIN_NOTES_WORDS) return MORE_DETAIL;
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { ok: false, needs_more: false, message: "The write-up service isn't configured yet. Your notes are still here." };
-  const result = await summarizeNotes(apiKey, data.notes, current.priorOpenActions);
+  const priorOpenActions = await sameGoalOpenActions(db, data.studentId, current);
+  const result = await summarizeNotes(apiKey, data.notes, priorOpenActions);
   if (!result.ok) return result;
   // Privileged persistence is allowed only after the scoped owner check above and grounding validation.
   const saved = await db.rpc("save_call_writeup", { p_student_id: data.studentId, p_booking_id: data.bookingId, p_owner_key: data.ownerKey, p_notes: data.notes, p_summary: JSON.parse(JSON.stringify(result.summary)) });
