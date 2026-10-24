@@ -19,6 +19,7 @@
 - [x] Add the /admin Mesa team page: ADMIN_PASSCODE-gated (verified wrong passcode rejected), aggregate-only KPIs, top categories and mentors charts, supply gaps with no-match share, low-completeness mentors needing attention, footer-only link; stats SQL verified against real data, 66 tests and clean build.
 - [x] Theme modes and UI polish: header theme menu (Light/Dark/High contrast/System + Normal/Large text, localStorage, no-flash pre-paint script), high-contrast token theme, WCAG-AA focus rings, reduced-motion support, print stays black-on-white; landing hierarchy + trust note, 44px booking slots with selected state, skeletons for calls/write-up/slots, mentor card hover/focus; verified all themes at 360px with zero overflow on landing, chat, cards, booking, My Calls, About, /admin; test students removed.
 
+- [x] Lower write-up gate to 20 words with same-goal prior-action exception; enforce clicked-action-only working steps, verified live AI, saved UI results and reload.
+
 ## Open
-- [ ] Lower write-up gate to 20 words with same-goal prior-action exception; enforce clicked-action-only working steps and verify both.
 - [ ] (Waiting on user) Publish when the user is ready.
