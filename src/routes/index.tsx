@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { LogoMark } from "@/components/app-header";
+import { ThemeMenu } from "@/components/theme-menu";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -102,18 +103,21 @@ function Landing() {
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-125 bg-[radial-gradient(60%_60%_at_50%_0%,oklch(0.951_0.024_274)_0%,transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-125 bg-[radial-gradient(60%_60%_at_50%_0%,var(--hero-glow)_0%,transparent_70%)]"
       />
       <header className="relative z-10 flex items-center justify-between px-6 py-5 lg:px-10">
         <LogoMark />
-        <Button
-          variant="ghost"
-          size="sm"
-          className="rounded-lg text-muted-foreground"
-          onClick={() => navigate({ to: "/about" })}
-        >
-          About this prototype
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-lg text-muted-foreground"
+            onClick={() => navigate({ to: "/about" })}
+          >
+            About this prototype
+          </Button>
+          <ThemeMenu />
+        </div>
       </header>
 
       <main className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-8 px-4 pb-20">
