@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createConversation, createStudent } from "@/lib/chat.functions";
 import { useStudent } from "@/lib/student";
+import { prepareStudentKey } from "@/lib/student-key";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -87,6 +88,7 @@ function Landing() {
     if (!name || !text.trim() || starting) return;
     setStarting(true);
     try {
+      prepareStudentKey();
       const created = await createStudent({ data: { firstName: name } });
       setStudent(created);
       setNameOpen(false);

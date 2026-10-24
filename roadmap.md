@@ -14,5 +14,5 @@
 
 ## Open
 - [ ] (Blocked by current AI service failure) Recheck generation after server-only save hardening; earlier live write-up generation, follow-up and saved checkboxes passed.
-- [ ] (Waiting on user) Choose privacy protection for existing public student/chat records flagged by the security scan.
+- [ ] Protect all student data with private per-student browser keys, leave old test rows inaccessible, verify isolation and resolve the three security findings.
 - [ ] (Waiting on user) Publish when the user is ready.
