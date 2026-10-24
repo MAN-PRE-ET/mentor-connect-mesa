@@ -389,6 +389,7 @@ export type Database = {
         Args: { p_action_id: string; p_owner_key: string; p_student_id: string }
         Returns: Json
       }
+      admin_dashboard_stats: { Args: never; Returns: Json }
       book_demo_call: {
         Args: {
           p_conversation_id: string
