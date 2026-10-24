@@ -3,7 +3,8 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireStudent, requestStudentKey } from "./student-auth.server";
 import { breakdownAction, summarizeNotes } from "./writeup-ai.server";
-import { MORE_DETAIL, notesWordCount, type BreakdownResult, type GoalProgress, type ProgressCall, type SavedAction, type SummaryResult, type WriteupContext } from "./writeup";
+import { sameGoalOpenActions } from "./writeup-history.server";
+import { MIN_NOTES_WORDS, MORE_DETAIL, notesWordCount, type BreakdownResult, type GoalProgress, type ProgressCall, type SavedAction, type SummaryResult, type WriteupContext } from "./writeup";
 
 const identity = z.object({ studentId: z.string().uuid(), ownerKey: z.string().regex(/^[a-f0-9]{64}$/) });
 const callInput = identity.extend({ bookingId: z.string().uuid() });
@@ -19,7 +20,7 @@ export const getWriteup = createServerFn({ method: "POST" }).inputValidator(call
   const order = await supabaseAdmin.from("action_items").select("id, step_order").eq("booking_id", data.bookingId);
   if (order.error) throw new Error(unavailable);
   const positions = new Map(order.data.map(item => [item.id, item.step_order]));
-  return { ...context, actions: context.actions.map(item => ({ ...item, stepOrder: positions.get(item.id) ?? null })) };
+  return { ...context, priorOpenActions: await sameGoalOpenActions(supabaseAdmin, data.studentId, context), actions: context.actions.map(item => ({ ...item, stepOrder: positions.get(item.id) ?? null })) };
 });
 export const getProgress = createServerFn({ method: "POST" }).inputValidator(identity).handler(async ({ data }): Promise<ProgressCall[]> => {
   setResponseHeader("Cache-Control", "no-store");
@@ -48,10 +49,11 @@ export const summarize = createServerFn({ method: "POST" }).inputValidator(callI
   if (context.error || !context.data) return { ok: false, needs_more: false, message: unavailable };
   const current = context.data as unknown as WriteupContext;
   if (current.summary) return { ok: true, summary: current.summary };
-  if (notesWordCount(data.notes) < 40) return MORE_DETAIL;
+  if (notesWordCount(data.notes) < MIN_NOTES_WORDS) return MORE_DETAIL;
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { ok: false, needs_more: false, message: "The write-up service isn't configured yet. Your notes are still here." };
-  const result = await summarizeNotes(apiKey, data.notes, current.priorOpenActions);
+  const priorOpenActions = await sameGoalOpenActions(db, data.studentId, current);
+  const result = await summarizeNotes(apiKey, data.notes, priorOpenActions);
   if (!result.ok) return result;
   // Privileged persistence is allowed only after the scoped owner check above and grounding validation.
   const saved = await db.rpc("save_call_writeup", { p_student_id: data.studentId, p_booking_id: data.bookingId, p_owner_key: data.ownerKey, p_notes: data.notes, p_summary: JSON.parse(JSON.stringify(result.summary)) });
@@ -75,9 +77,14 @@ export const breakdown = createServerFn({ method: "POST" }).inputValidator(ident
   const item = await db.rpc("action_for_breakdown", { p_student_id: data.studentId, p_action_id: data.actionId, p_owner_key: data.ownerKey });
   if (item.error || !item.data) return { ok: false, message: unavailable };
   const target = item.data as { task: string; timeframe: string | null };
+  // The RPC above verifies ownership before any related action rows are read.
+  const parent = await db.from("action_items").select("booking_id").eq("id", data.actionId).single();
+  if (parent.error || !parent.data) return { ok: false, message: unavailable };
+  const siblings = await db.from("action_items").select("task").eq("booking_id", parent.data.booking_id).is("parent_id", null).neq("id", data.actionId);
+  if (siblings.error) return { ok: false, message: unavailable };
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { ok: false, message: "The write-up service isn't configured yet." };
-  const steps = await breakdownAction(apiKey, target.task, target.timeframe);
+  const steps = await breakdownAction(apiKey, target.task, target.timeframe, siblings.data.map(other => other.task));
   if (!steps) return { ok: false, message: "We couldn't split this into small steps. Please try again." };
   // Persistence only after the scoped owner check and step validation above.
   const saved = await db.rpc("save_suggested_steps", { p_student_id: data.studentId, p_parent_id: data.actionId, p_owner_key: data.ownerKey, p_steps: steps });
