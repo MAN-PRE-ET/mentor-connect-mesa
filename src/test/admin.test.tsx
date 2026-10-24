@@ -24,6 +24,15 @@ vi.mock("@tanstack/react-start", () => ({
   useServerFn: () => vi.fn(async () => ({ ok: true })),
 }));
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>();
+  return {
+    ...actual,
+    Link: ({ children, ...rest }: { children?: React.ReactNode }) => <a {...rest}>{children}</a>,
+    useRouter: () => ({ invalidate: vi.fn() }),
+  };
+});
+
 const data: AdminDashboard = {
   students: 5,
   chats: 14,
