@@ -132,7 +132,7 @@ function Landing() {
         </div>
 
         <div
-          className="animate-message-in w-full rounded-2xl border bg-card p-2 shadow-lift"
+          className="animate-message-in w-full rounded-2xl border bg-card p-2.5 shadow-lift transition-shadow focus-within:shadow-lift focus-within:ring-2 focus-within:ring-ring"
           style={{ animationDelay: "0.08s" }}
         >
           <Textarea
@@ -145,9 +145,14 @@ function Landing() {
               }
             }}
             placeholder="What are you stuck on?"
-            className="min-h-20 resize-none border-0 bg-transparent px-3 py-2 text-base shadow-none focus-visible:ring-0"
+            aria-label="Describe what you're stuck on"
+            className="min-h-28 resize-none border-0 bg-transparent px-4 py-3 text-lg shadow-none focus-visible:ring-0"
           />
-          <div className="flex justify-end p-1">
+          <div className="flex items-center justify-between gap-3 p-1.5 pl-4">
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5 shrink-0" aria-hidden />
+              Matches come only from our verified mentor list.
+            </p>
             <Button
               size="icon"
               className="rounded-xl"
@@ -161,7 +166,7 @@ function Landing() {
         </div>
 
         <div
-          className="animate-message-in flex flex-wrap justify-center gap-2"
+          className="animate-message-in flex flex-wrap items-center justify-center gap-2"
           style={{ animationDelay: "0.16s" }}
         >
           {EXAMPLES.map((example) => (
@@ -169,7 +174,7 @@ function Landing() {
               key={example}
               type="button"
               onClick={() => setText(example)}
-              className="rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-card transition-colors hover:border-primary/40 hover:text-foreground"
+              className="inline-flex min-h-10 items-center rounded-full border bg-card px-4 py-2 text-sm text-muted-foreground shadow-card transition-colors hover:border-primary/40 hover:text-foreground"
             >
               {example}
             </button>
@@ -177,7 +182,9 @@ function Landing() {
         </div>
 
         {startMutation.isError ? (
-          <p className="text-sm text-destructive">Couldn't start your chat. Please try again.</p>
+          <p role="alert" className="text-sm text-destructive">
+            Couldn't start your chat. Please try again.
+          </p>
         ) : null}
       </main>
 
