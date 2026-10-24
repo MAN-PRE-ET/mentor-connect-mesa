@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseDate } from "chrono-node";
 import type { CallBooking } from "./booking";
 
 export const summarySchema = z.object({
@@ -31,13 +32,28 @@ export function validateSummary(notes: string, summary: CallSummary): SummaryRes
   return { ok: true, summary: { discussed, action_items, next_steps: quoteFound(notes, summary.next_steps) ? summary.next_steps : "", suggested_followup_topic: quoteFound(notes, summary.suggested_followup_topic) ? summary.suggested_followup_topic : "" } };
 }
 
-// AI-suggested small steps for one action item: 2-4 short steps, nothing new added.
-export const stepsSchema = z.object({ steps: z.array(z.string()).min(2).max(4) }).strict();
+// Next steps are deterministic: never reuse model free text or include suggested children.
+export function orderedActionItems<T extends { task: string; timeframe: string | null }>(items: T[], reference: string): T[] {
+  const referenceDate = new Date(reference);
+  const rank = (item: T) => item.timeframe ? (parseDate(item.timeframe, { instant: referenceDate, timezone: 330 }, { forwardDate: true })?.getTime() ?? Number.MAX_SAFE_INTEGER) : Infinity;
+  return [...items].sort((a, b) => rank(a) - rank(b));
+}
+
+// AI-suggested working steps for one action item, distinct and free of resources/claims.
+export const stepsSchema = z.object({ steps: z.array(z.string()).min(3).max(4) }).strict();
 export function validateSteps(steps: unknown): string[] | null {
   if (!Array.isArray(steps)) return null;
-  const clean = steps.filter((step): step is string => typeof step === "string").map(step => step.trim()).filter(Boolean);
-  if (clean.length < 2 || clean.length > 4) return null;
-  if (clean.some(step => step.length > 300 || /https?:\/\//i.test(step) || /www\./i.test(step) || step.includes("@"))) return null;
+  if (steps.some(step => typeof step !== "string" || !step.trim())) return null;
+  const clean = steps.map(step => String(step).trim());
+  if (clean.length < 3 || clean.length > 4) return null;
+  if (clean.some(step => step.length > 300 || /https?:\/\/|www\.|@|\d|%|\b(course|courses|tool|tools|statistics|statistic)\b|\bmentor\b|\b[A-Z][a-z]+\b/.test(step.slice(1)) || /https?:\/\/|www\.|@|\d|%|\b(course|courses|tool|tools|statistics|statistic|mentor)\b/i.test(step))) return null;
+  const normalized = clean.map(step => normalizeQuote(step).replace(/[^\p{L}\p{N}\s]/gu, ""));
+  if (new Set(normalized).size !== clean.length) return null;
+  const words = normalized.map(step => new Set(step.split(/\s+/).filter(word => !["the", "a", "an", "your", "of", "for", "to", "and"].includes(word))));
+  if (words.some((set, i) => words.slice(i + 1).some(other => {
+    const intersection = [...set].filter(word => other.has(word)).length;
+    return intersection / new Set([...set, ...other]).size >= 0.8;
+  }))) return null;
   return clean;
 }
 

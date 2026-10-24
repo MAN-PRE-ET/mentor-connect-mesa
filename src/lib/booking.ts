@@ -1,3 +1,5 @@
+import { APP_URL, conversationUrl } from "./app-url";
+
 export const CALL_DURATION_MINUTES = 30;
 export const NOTE_LIMIT = 500;
 export type CallBooking = {
@@ -39,6 +41,6 @@ export function googleCalendarUrl(call: CallBooking) {
   const start = new Date(call.startTime);
   const end = new Date(start.getTime() + CALL_DURATION_MINUTES * 60_000);
   const compact = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-  const params = new URLSearchParams({ action: "TEMPLATE", text: `Mentor Connect — ${call.mentorName}`, dates: `${compact(start)}/${compact(end)}`, ctz: "Asia/Kolkata", details: `Your goal: ${call.problemSummary}\nDiscussion note: ${call.note}\nDemo booking only. Meeting link is a placeholder.`, location: "Placeholder meeting link — not a live call" });
+  const params = new URLSearchParams({ action: "TEMPLATE", text: `Mentor Connect — ${call.mentorName}`, dates: `${compact(start)}/${compact(end)}`, ctz: "Asia/Kolkata", details: `Your goal: ${call.problemSummary}\nDiscussion note: ${call.note}\nDemo booking only. Meeting link is a placeholder.\nMentor Connect: ${APP_URL}${call.conversationId ? `\nBack to conversation: ${conversationUrl(call.conversationId)}` : ""}`, location: "Placeholder meeting link — not a live call" });
   return `https://calendar.google.com/calendar/render?${params}`;
 }

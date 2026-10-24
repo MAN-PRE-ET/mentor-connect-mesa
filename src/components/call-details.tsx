@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { conversationUrl } from "@/lib/app-url";
 import { CalendarPlus, CheckCircle2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,6 @@ export function CallDetails({ call, confirmation = false }: { call: CallBooking;
       <Button variant="outline" asChild><a href={googleCalendarUrl(call)} target="_blank" rel="noopener noreferrer"><CalendarPlus />Add to Google Calendar<ExternalLink /></a></Button>
       <div className="rounded-lg bg-accent p-4 text-accent-foreground"><h4 className="flex items-center gap-2 font-medium"><CheckCircle2 className="size-4" />How to prepare</h4><p className="mt-2 whitespace-pre-wrap break-words text-sm">Your goal: {call.problemSummary}</p><p className="mt-2 text-sm">Bring one concrete example and the questions you’d like to explore.</p></div>
     </>}
-    {call.conversationId && <Button variant="link" className="h-auto p-0" asChild><Link to="/chat/$conversationId" params={{ conversationId: call.conversationId }} search={{ q: undefined }}>Back to conversation</Link></Button>}
+    {call.conversationId && <Button variant="link" className="h-auto p-0" asChild><a href={conversationUrl(call.conversationId)}>Back to conversation</a></Button>}
   </div>;
 }
