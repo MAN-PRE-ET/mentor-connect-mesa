@@ -96,8 +96,7 @@ function KpiCard({ icon: Icon, label, value, sub }: { icon: typeof Users; label:
   );
 }
 
-function BarPanel({ title, rows, empty, nameKey }: { title: string; rows: { name: string; count: number }[]; empty: string; nameKey?: never }) {
-  void nameKey;
+function BarPanel({ title, rows, empty }: { title: string; rows: { name: string; count: number }[]; empty: string }) {
   return (
     <Card className="rounded-2xl shadow-card">
       <CardHeader>
