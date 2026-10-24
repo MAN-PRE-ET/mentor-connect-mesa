@@ -85,17 +85,21 @@ export function MentorCard({ mentor, match, evidence, caveat, conversationId }: 
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Why this mentor
         </p>
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {evidence.map((entry, index) => (
             <Badge
               key={`${entry.field}-${index}`}
-              className="border-transparent bg-accent text-accent-foreground"
+              className="shrink-0 whitespace-nowrap border-transparent bg-accent text-accent-foreground [overflow-wrap:normal] [word-break:normal]"
             >
               {fieldLabel(entry.field)}: {entry.value}
             </Badge>
           ))}
           {otherChips.slice(0, visibleCount).map((value) => (
-            <Badge key={value} variant="secondary" className="px-2.5 py-0.5">
+            <Badge
+              key={value}
+              variant="secondary"
+              className="shrink-0 whitespace-nowrap px-2.5 py-0.5 [overflow-wrap:normal] [word-break:normal]"
+            >
               {value}
             </Badge>
           ))}
@@ -103,7 +107,7 @@ export function MentorCard({ mentor, match, evidence, caveat, conversationId }: 
             <button
               type="button"
               onClick={() => setExpanded(true)}
-              className="inline-flex items-center rounded-full border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               +{hiddenCount} more
             </button>
@@ -111,7 +115,7 @@ export function MentorCard({ mentor, match, evidence, caveat, conversationId }: 
             <button
               type="button"
               onClick={() => setExpanded(false)}
-              className="inline-flex items-center rounded-full border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-input bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Show less
             </button>
