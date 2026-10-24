@@ -32,7 +32,9 @@ export const summarize = createServerFn({ method: "POST" }).inputValidator(callI
   if (!apiKey) return { ok: false, needs_more: false, message: "The write-up service isn't configured yet. Your notes are still here." };
   const result = await summarizeNotes(apiKey, data.notes, current.priorOpenActions);
   if (!result.ok) return result;
-  const saved = await db.rpc("save_call_writeup", { p_student_id: data.studentId, p_booking_id: data.bookingId, p_owner_key: data.ownerKey, p_notes: data.notes, p_summary: JSON.parse(JSON.stringify(result.summary)) });
+  // Privileged persistence is allowed only after the scoped owner check above and grounding validation.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const saved = await supabaseAdmin.rpc("save_call_writeup", { p_student_id: data.studentId, p_booking_id: data.bookingId, p_owner_key: data.ownerKey, p_notes: data.notes, p_summary: JSON.parse(JSON.stringify(result.summary)) });
   if (saved.error) return { ok: false, needs_more: false, message: "Your write-up couldn't be saved. Your notes are still here; please try again." };
   return result;
 });

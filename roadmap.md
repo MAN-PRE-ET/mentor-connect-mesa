@@ -10,7 +10,9 @@
 - [x] Wording: first name only in first reply, Tele-MANAS only in support card, distinct unknown-mentor vs unknown-detail replies, softened injection refusal.
 - [x] Add 750 demo slots for all 50 mentors, atomic booking, confirmation, and My Calls; verify real grounded recommendation → booking → reload → completion, taken-slot/overlap blocking, and mobile layout.
 - [x] Keep demo availability rolling for seven IST calendar days, automatically top up on app load and availability reads, hide expired times, and verify real booking-dialog reload and zero missing future slots.
+- [x] Add private note-grounded write-ups, saved action checklists, printing, and completed-call progress; verify generation, short-note prompt, saved checkboxes, earlier open-action context, mobile fit and privacy restrictions.
 
 ## Open
-- [ ] Add private note-grounded write-ups, saved action checklists, printing, and completed-call progress; verify the complete flow.
+- [ ] (Blocked by current AI service failure) Recheck generation after server-only save hardening; earlier live write-up generation, follow-up and saved checkboxes passed.
+- [ ] (Waiting on user) Choose privacy protection for existing public student/chat records flagged by the security scan.
 - [ ] (Waiting on user) Publish when the user is ready.

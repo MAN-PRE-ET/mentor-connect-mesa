@@ -57,6 +57,13 @@
       "when": 1792747166661,
       "tag": "0007_private_call_writeups",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792800702150,
+      "tag": "0008_server_only_writeup_save",
+      "breakpoints": true
     }
   ]
 }
