@@ -110,19 +110,11 @@ async function once(
   if (nudge) messages.push({ role: "user", content: nudge });
 
   const result = streamText({
-    model: provider.responses(MODEL_ID),
+    model: provider.chat(GEMINI_MODEL),
     instructions: systemPrompt,
     messages,
     output: Output.object({ schema: turnSchema, name: "mentor_connect_response" }),
-    providerOptions: {
-      openai: {
-        forceReasoning: true,
-        reasoningEffort: "low",
-        reasoningSummary: "auto",
-        store: false,
-        include: ["reasoning.encrypted_content"],
-      },
-    },
+    providerOptions: { openai: { strictJsonSchema: false } },
   });
 
   return await result.output;
