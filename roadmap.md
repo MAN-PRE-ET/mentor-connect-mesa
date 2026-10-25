@@ -23,4 +23,5 @@
 - [x] Mobile header navigation and history My Calls shortcut; verified real student flow at 360px in all four themes, keyboard focus, 44px navigation targets, sheet dismissal and unchanged desktop navigation.
 
 ## Open
+- [ ] Switch chat and write-up AI to direct Gemini; preserve grounding and quote checks, run existing tests and the two requested live calls.
 - [ ] (Waiting on user) Publish when the user is ready.
