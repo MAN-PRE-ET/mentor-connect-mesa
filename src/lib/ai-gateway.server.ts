@@ -50,14 +50,21 @@ export function createLovableAiGatewayRunIdFetch(initialRunId?: string) {
   };
 }
 
-export function createResponsesProvider(initialRunId?: string) {
-  const apiKey = process.env["LOVABLE_API_KEY"]!;
-  const runIdFetch = createLovableAiGatewayRunIdFetch(initialRunId);
-  const provider = createOpenAI({
-    baseURL: `${GATEWAY_BASE_URL.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1`,
-    apiKey,
-    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    fetch: runIdFetch.fetch,
-  });
-  return { provider, getRunId: runIdFetch.getRunId };
+export const GEMINI_MODEL = "gemini-flash-latest";
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
+
+export function getAiApiKey(): string | undefined {
+  return process.env["Gemini_mentor_connect"] ?? process.env["GEMINI_API_KEY"];
+}
+
+export function createGeminiProvider(apiKey: string) {
+  return createOpenAI({ baseURL: GEMINI_BASE_URL, apiKey });
+}
+
+export function createResponsesProvider() {
+  const apiKey = getAiApiKey()!;
+  return {
+    provider: createGeminiProvider(apiKey),
+    getRunId: () => undefined as string | undefined,
+  };
 }
