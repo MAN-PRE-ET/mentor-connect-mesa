@@ -87,7 +87,7 @@ export const summarize = createServerFn({ method: "POST" })
     const current = context.data as unknown as WriteupContext;
     if (current.summary) return { ok: true, summary: current.summary };
     if (notesWordCount(data.notes) < MIN_NOTES_WORDS) return MORE_DETAIL;
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = getAiApiKey();
     if (!apiKey)
       return {
         ok: false,
@@ -153,7 +153,7 @@ export const breakdown = createServerFn({ method: "POST" })
       .is("parent_id", null)
       .neq("id", data.actionId);
     if (siblings.error) return { ok: false, message: unavailable };
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = getAiApiKey();
     if (!apiKey) return { ok: false, message: "The write-up service isn't configured yet." };
     const steps = await breakdownAction(
       apiKey,
