@@ -31,8 +31,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Mentor Connect — Get unstuck in your career" },
       {
         property: "og:description",
-        content:
-          "Describe your career problem and get matched with real Mesa School of Business mentors.",
+        content: "Describe your career problem and get matched with real Mesa School of Business mentors.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -69,7 +68,15 @@ function Landing() {
     },
     onError: () => {
       setStarting(false);
-      // surfaced inline below
+      if (student) {
+        try {
+          window.localStorage.removeItem("mentor_connect_student");
+        } catch {}
+        if (student.firstName && !firstName) {
+          setFirstName(student.firstName);
+        }
+        setNameOpen(true);
+      }
     },
   });
 
@@ -124,12 +131,9 @@ function Landing() {
 
       <main className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-8 px-4 pb-20">
         <div className="animate-message-in text-center">
-          <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Get unstuck in your career
-          </h1>
+          <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">Get unstuck in your career</h1>
           <p className="mt-3 text-lg text-muted-foreground text-balance">
-            Describe what you're stuck on and we'll match you with mentors who have actually been
-            there.
+            Describe what you're stuck on and we'll match you with mentors who have actually been there.
           </p>
         </div>
 
@@ -192,16 +196,16 @@ function Landing() {
 
       <footer className="relative z-10 pb-6 text-center text-xs text-muted-foreground">
         Mentor Connect — Mesa School of Business ·{" "}
-        <Link to="/admin" className="underline underline-offset-2 hover:text-foreground">Admin</Link>
+        <Link to="/admin" className="underline underline-offset-2 hover:text-foreground">
+          Admin
+        </Link>
       </footer>
 
       <Dialog open={nameOpen} onOpenChange={setNameOpen}>
         <DialogContent className="rounded-2xl sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>What's your first name?</DialogTitle>
-            <DialogDescription>
-              We'll use it in your chats. No passwords — this is a prototype.
-            </DialogDescription>
+            <DialogDescription>We'll use it in your chats. No passwords — this is a prototype.</DialogDescription>
           </DialogHeader>
           <Input
             value={firstName}
