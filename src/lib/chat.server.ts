@@ -10,8 +10,6 @@ import type { RawTurn } from "./chat-validation";
  * validates every claim against the database before anything reaches the UI.
  */
 
-const MODEL_ID = "openai/gpt-6-astra";
-
 /** Compact serialization: only fields present in the data; null/empty omitted. */
 function compactMentor(mentor: MentorRow): Record<string, string | string[]> {
   const out: Record<string, string | string[]> = { id: mentor.id };
