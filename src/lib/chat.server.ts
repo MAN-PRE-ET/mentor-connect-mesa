@@ -1,6 +1,6 @@
 import { NoObjectGeneratedError, Output, streamText, type ModelMessage } from "ai";
 import { z } from "zod";
-import { createResponsesProvider } from "./ai-gateway.server";
+import { createResponsesProvider, GEMINI_MODEL } from "./ai-gateway.server";
 import type { MentorRow } from "./types";
 import type { RawTurn } from "./chat-validation";
 
@@ -103,10 +103,10 @@ async function once(
   nudge: string | undefined,
 ): Promise<RawTurn> {
   const { provider } = createResponsesProvider();
-  const systemPrompt = MENTOR_CHAT_SYSTEM_PROMPT.replace(
-    "{STUDENT_NAME}",
-    studentName || "A student",
-  ).replace("{MENTORS_JSON}", JSON.stringify(mentors.map(compactMentor)));
+  const systemPrompt = MENTOR_CHAT_SYSTEM_PROMPT.replace("{STUDENT_NAME}", studentName || "A student").replace(
+    "{MENTORS_JSON}",
+    JSON.stringify(mentors.map(compactMentor)),
+  );
 
   const messages: ModelMessage[] = [...history];
   if (nudge) messages.push({ role: "user", content: nudge });
