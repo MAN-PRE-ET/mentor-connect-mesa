@@ -50,7 +50,7 @@ export function createLovableAiGatewayRunIdFetch(initialRunId?: string) {
   };
 }
 
-export const GEMINI_MODEL = "gemini-2.5-flash";
+export const GEMINI_MODEL = "gemini-3.5-flash-lite";
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
 
 export function getAiApiKey(): string | undefined {
